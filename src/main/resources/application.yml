@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: backend-project
+
+  datasource:
+    url: jdbc:h2:mem:test
+    driver-class-name: org.h2.Driver
+    username: sm
+    password: sm
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+        show_sql: true
+
+logging:
+  level:
+    root: info                       # 전체 로그 레벨
+    group5.backend: debug           # 너의 프로젝트 패키지 기준 로그 레벨 (서비스/컨트롤러 로그 보기 위함)
+    org.hibernate.SQL: debug        # SQL 쿼리 로그
+    org.hibernate.type.descriptor.sql.BasicBinder: trace # SQL 파라미터 바인딩 로그
+
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{36} - %msg%n"
+
+openai:
+  api:
+    key: ${OPENAI_API_KEY}
