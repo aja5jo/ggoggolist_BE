@@ -1,4 +1,4 @@
-package group5.backend.exception.category;
+package group5.backend.exception.login;
 
 public class UserNotFoundException extends RuntimeException {
     public UserNotFoundException(String message) {

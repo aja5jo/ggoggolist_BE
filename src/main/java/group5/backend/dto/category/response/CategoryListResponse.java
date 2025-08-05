@@ -8,5 +8,15 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class CategoryListResponse {
+
+    private int count;
     private List<Category> categories;
+
+    public static CategoryListResponse from(List<Category> categories) {
+        return new CategoryListResponse(categories.size(), categories);
+    }
+    public CategoryListResponse(List<Category> categories) {
+        this.categories = categories;
+    }
 }
+

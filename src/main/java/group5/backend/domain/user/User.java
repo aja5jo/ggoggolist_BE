@@ -1,7 +1,7 @@
 package group5.backend.domain.user;
 
-import group5.backend.exception.category.InvalidCategorySizeException;
-import group5.backend.exception.category.UserCategoryAccessDeniedException;
+import group5.backend.exception.category.MerchantInvalidCategorySizeException;
+import group5.backend.exception.category.UserInvalidCategorySizeException;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -59,8 +59,6 @@ public class User implements UserDetails {
         return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
-
-
     //사용자 비번 반환
     @Override
     public String getPassword() {
@@ -108,10 +106,17 @@ public class User implements UserDetails {
         }
 
         if (this.categories.contains(category)) {
+            // 최소 1개 유지 조건 추가
+            if (this.categories.size() == 1) {
+                throw new UserInvalidCategorySizeException(
+                        "카테고리는 최소 1개 이상 선택해야 합니다.",
+                        new ArrayList<>(this.categories)
+                );
+            }
             this.categories.remove(category); // 토글 OFF
         } else {
             if (this.categories.size() >= 3) {
-                throw new InvalidCategorySizeException(
+                throw new UserInvalidCategorySizeException(
                         "카테고리는 최대 3개까지 선택할 수 있습니다.",
                         new ArrayList<>(this.categories)
                 );
@@ -120,8 +125,15 @@ public class User implements UserDetails {
         }
     }
 
+
     //Role이 merchant인 경우 카테고리 설정하는 메서드
     public void setMerchantCategory(Category category) {
-        this.categories = List.of(category); // 1개만 설정
+        if (category == null) {
+            throw new MerchantInvalidCategorySizeException("가게 카테고리는 반드시 1개의 카테고리를 설정해야 합니다.");
+        }
+
+        this.categories = List.of(category); // 무조건 1개 설정
     }
+
+
 }

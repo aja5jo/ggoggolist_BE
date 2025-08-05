@@ -2,15 +2,16 @@ package group5.backend.exception;
 
 import group5.backend.domain.user.Category;
 import group5.backend.dto.response.ApiResponse;
-import group5.backend.exception.category.InvalidCategorySizeException;
-import group5.backend.exception.category.UserCategoryAccessDeniedException;
-import group5.backend.exception.category.UserNotFoundException;
+import group5.backend.exception.category.MerchantInvalidCategorySizeException;
+import group5.backend.exception.category.UserInvalidCategorySizeException;
+import group5.backend.exception.login.UserNotFoundException;
 import group5.backend.exception.login.UserNotFoundByEmailException;
 import group5.backend.exception.login.WrongPasswordException;
 import group5.backend.exception.signup.DuplicateEmailException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -42,6 +43,12 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, errorMessage);
     }
 
+    //회원가입 시 역할이 누락되었을 때
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<?>> handleHttpMessageNotReadable(HttpMessageNotReadableException e) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, "역할(role)은 필수이며, USER 또는 MERCHANT 중 하나여야 합니다.");
+    }
+
     // 이메일 중복
     @ExceptionHandler(DuplicateEmailException.class)
     public ResponseEntity<ApiResponse<?>> handleDuplicateEmail(DuplicateEmailException e) {
@@ -54,18 +61,12 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
     }
 
-
     // 엔티티 없음
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ApiResponse<?>> handleEntityNotFound(EntityNotFoundException e) {
         return buildErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
     }
 
-    // 권한 없음
-    @ExceptionHandler(PermissionDeniedException.class)
-    public ResponseEntity<ApiResponse<?>> handlePermissionDenied(PermissionDeniedException e) {
-        return buildErrorResponse(HttpStatus.FORBIDDEN, e.getMessage());
-    }
 
     // 비밀번호 불일치
     @ExceptionHandler(WrongPasswordException.class)
@@ -74,22 +75,26 @@ public class GlobalExceptionHandler {
     }
 
     //카테고리 사이즈 에러
-    @ExceptionHandler(InvalidCategorySizeException.class)
-    public ResponseEntity<ApiResponse<List<Category>>> handleInvalidCategorySize(InvalidCategorySizeException e) {
+
+    //유저
+    @ExceptionHandler(UserInvalidCategorySizeException.class)
+    public ResponseEntity<ApiResponse<List<Category>>> handleInvalidCategorySize(UserInvalidCategorySizeException e) {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage(), e.getCurrentCategories());
     }
-    
+
+    //소상공인
+    @ExceptionHandler(MerchantInvalidCategorySizeException.class)
+    public ResponseEntity<ApiResponse<?>> handleMerchantInvalidCategorySize(MerchantInvalidCategorySizeException e) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+
+
     //유저 없음
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ApiResponse<?>> handleUserNotFound(UserNotFoundException e) {
         return buildErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
     }
 
-    //카테고리 설정 권한 없음
-    @ExceptionHandler(UserCategoryAccessDeniedException.class)
-    public ResponseEntity<ApiResponse<?>> handleUserCategoryAccessDenied(UserCategoryAccessDeniedException e) {
-        return buildErrorResponse(HttpStatus.FORBIDDEN, e.getMessage());
-    }
     // 그 외 모든 예외
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<?>> handleAllExceptions(Exception e) {
