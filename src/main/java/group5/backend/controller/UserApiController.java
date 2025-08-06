@@ -2,7 +2,7 @@ package group5.backend.controller;
 
 import group5.backend.dto.login.request.LoginRequest;
 import group5.backend.dto.login.response.LoginResponse;
-import group5.backend.dto.response.ApiResponse;
+import group5.backend.response.ApiResponse;
 import group5.backend.dto.signup.request.SignupRequest;
 import group5.backend.dto.signup.response.SignupResponse;
 import group5.backend.service.UserService;
@@ -14,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/users")
+@RequestMapping("/api")
 public class UserApiController {
 
     private final UserService userService;

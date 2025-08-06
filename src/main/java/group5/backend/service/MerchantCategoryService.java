@@ -3,7 +3,6 @@ package group5.backend.service;
 import group5.backend.domain.user.Category;
 import group5.backend.domain.user.User;
 import group5.backend.dto.category.response.CategoryListResponse;
-import group5.backend.exception.login.UserNotFoundException;
 import group5.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

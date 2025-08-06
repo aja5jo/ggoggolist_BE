@@ -1,7 +1,7 @@
 package group5.backend.exception;
 
 import group5.backend.domain.user.Category;
-import group5.backend.dto.response.ApiResponse;
+import group5.backend.response.ApiResponse;
 import group5.backend.exception.category.MerchantInvalidCategorySizeException;
 import group5.backend.exception.category.UserInvalidCategorySizeException;
 import group5.backend.exception.login.UserNotFoundException;

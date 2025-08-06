@@ -1,5 +1,8 @@
 package group5.backend.domain.user;
 
+import group5.backend.domain.event.FavoriteEvent;
+import group5.backend.domain.store.FavoriteStore;
+import group5.backend.domain.store.Store;
 import group5.backend.exception.category.MerchantInvalidCategorySizeException;
 import group5.backend.exception.category.UserInvalidCategorySizeException;
 import jakarta.persistence.*;
@@ -48,6 +51,15 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private Role role;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FavoriteStore> favoriteStores;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FavoriteEvent> favoriteEvents;
+
+    @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Store store;
+
     //사용자가 갖고 있는 권한 목록 반환
     /**
      * GrantedAuthority: Spring Security에서 사용자의 권한(role)을 표현
@@ -56,8 +68,9 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+        return List.of(new SimpleGrantedAuthority(role.name())); // "USER" or "MERCHANT"
     }
+
 
     //사용자 비번 반환
     @Override
@@ -134,6 +147,4 @@ public class User implements UserDetails {
 
         this.categories = List.of(category); // 무조건 1개 설정
     }
-
-
 }

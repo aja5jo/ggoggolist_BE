@@ -1,8 +1,7 @@
 package group5.backend.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import group5.backend.config.security.UserDetailsServiceImpl;
-import group5.backend.dto.response.ApiResponse;
+import group5.backend.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -53,23 +52,15 @@ public class WebSecurityConfig {
                         .accessDeniedHandler(customAccessDeniedHandler)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/api/users",              // POST: 회원가입 (로그인 없이 가능)
-                                "/api/users/login"        // POST: 로그인 (로그인 없이 가능)
-                        ).permitAll()
-
-                        .requestMatchers("/api/public/**").permitAll() // 비회원도 접근 가능한 공개 API
-
-                        .requestMatchers("/api/users/**").hasAnyRole("USER")       // 일반 유저 전용 API
-                        .requestMatchers("/api/merchants/**").hasAnyRole("MERCHANT") // 소상공인 전용 API
-
-                        .anyRequest().authenticated() // 그 외는 인증 필요
+                        .requestMatchers("/api/signup", "/api/login").permitAll()
+                        .requestMatchers("/api/users/**").hasAuthority("USER")  // 수정됨
+                        .requestMatchers("/api/merchants/**").hasAuthority("MERCHANT")  // 수정됨
+                        .requestMatchers("/api/**").permitAll()
+                        .anyRequest().authenticated()
                 )
 
-
-
                 .logout(logout -> logout
-                        .logoutUrl("/api/users/logout")
+                        .logoutUrl("/api/logout")
                         .addLogoutHandler((request, response, authentication) -> {
                             if (authentication == null) {
                                 throw new InsufficientAuthenticationException("로그인이 되어 있지 않습니다.");

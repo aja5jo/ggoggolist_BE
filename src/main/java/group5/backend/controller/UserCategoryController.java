@@ -3,6 +3,7 @@ package group5.backend.controller;
 import group5.backend.domain.user.Category;
 import group5.backend.domain.user.User;
 import group5.backend.dto.category.response.CategoryListResponse;
+import group5.backend.response.ApiResponse;
 import group5.backend.service.UserCategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,23 +18,28 @@ public class UserCategoryController {
 
     private final UserCategoryService userCategoryService;
 
-    @Secured("ROLE_USER")
+    @Secured("USER")
     @PostMapping("/{category}")
-    public ResponseEntity<CategoryListResponse> toggleCategory(
+    public ResponseEntity<ApiResponse<CategoryListResponse>> toggleCategory(
             @AuthenticationPrincipal User loginUser,
             @PathVariable Category category
     ) {
         CategoryListResponse response = userCategoryService.toggleCategory(loginUser, category);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(
+                new ApiResponse<>(true, 200, "카테고리 토글 성공", response)
+        );
     }
 
-    @Secured("ROLE_USER")
-    @GetMapping
-    public ResponseEntity<CategoryListResponse> getUserCategories(
+    @Secured("USER")
+    @GetMapping // 주석 제거
+    public ResponseEntity<ApiResponse<CategoryListResponse>> getUserCategories(
             @AuthenticationPrincipal User loginUser
     ) {
         CategoryListResponse response = userCategoryService.getAllCategories(loginUser);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(
+                new ApiResponse<>(true, 200, "카테고리 조회 성공", response)
+        );
     }
+
 }
 

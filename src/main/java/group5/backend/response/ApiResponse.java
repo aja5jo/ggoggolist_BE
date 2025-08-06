@@ -1,4 +1,4 @@
-package group5.backend.dto.response;
+package group5.backend.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
