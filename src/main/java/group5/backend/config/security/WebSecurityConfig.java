@@ -2,6 +2,7 @@ package group5.backend.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import group5.backend.response.ApiResponse;
+import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -52,6 +53,12 @@ public class WebSecurityConfig {
                         .accessDeniedHandler(customAccessDeniedHandler)
                 )
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/v3/api-docs/swagger-config",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
                         .requestMatchers("/api/signup", "/api/login").permitAll()
                         .requestMatchers("/api/users/**").hasAuthority("USER")  // 수정됨
                         .requestMatchers("/api/merchants/**").hasAuthority("MERCHANT")  // 수정됨
@@ -70,6 +77,12 @@ public class WebSecurityConfig {
                             response.setContentType("application/json");
                             response.setCharacterEncoding("UTF-8");
                             response.setStatus(HttpServletResponse.SC_OK);
+
+                            // 🔥 JSESSIONID 쿠키 삭제
+                            Cookie cookie = new Cookie("JSESSIONID", null);
+                            cookie.setPath("/");
+                            cookie.setMaxAge(0);
+                            response.addCookie(cookie);
 
                             ApiResponse<?> logoutResponse = new ApiResponse<>(true, 200, "로그아웃 성공", null);
                             ObjectMapper objectMapper = new ObjectMapper();
