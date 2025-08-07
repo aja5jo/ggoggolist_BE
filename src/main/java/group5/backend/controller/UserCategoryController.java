@@ -31,7 +31,7 @@ public class UserCategoryController {
     }
 
     @Secured("USER")
-    @GetMapping // 주석 제거
+    //@GetMapping
     public ResponseEntity<ApiResponse<CategoryListResponse>> getUserCategories(
             @AuthenticationPrincipal User loginUser
     ) {
