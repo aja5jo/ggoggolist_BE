@@ -11,7 +11,7 @@ public class EventSummaryResponse {
     private Long id;
     private String name;
     private String thumbnail;
-    private String desc;
+    private String description;
     private int likeCount;
     private boolean liked;
     private LocalDate startDate;
