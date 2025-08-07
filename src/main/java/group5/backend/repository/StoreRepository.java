@@ -1,0 +1,19 @@
+package group5.backend.repository;
+
+import group5.backend.domain.store.Store;
+import group5.backend.domain.user.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+public interface StoreRepository extends JpaRepository<Store, Long> {
+
+    // Store 이름으로 조회 (Optional)
+    Optional<Store> findByName(String name);
+
+    // 특정 유저(merchant)가 등록한 가게 목록
+    List<Store> findByOwner(User owner);
+}
