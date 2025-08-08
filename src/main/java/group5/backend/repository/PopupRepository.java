@@ -101,4 +101,16 @@ public interface PopupRepository extends JpaRepository<Popup, Long> {
             "WHERE p.startDate > :today " +
             "ORDER BY p.startDate ASC, p.id ASC")
     List<Popup> findUpcomingList(@Param("today") LocalDate today);
+
+    //이번주 진행 팝업
+    @EntityGraph(attributePaths = "user")
+    @Query("""
+        SELECT p FROM Popup p
+        WHERE p.startDate <= :endOfWeek
+          AND p.endDate   >= :startOfWeek
+    """)
+    List<Popup> findThisWeek(@Param("startOfWeek") LocalDate startOfWeek,
+                             @Param("endOfWeek") LocalDate endOfWeek,
+                             Sort sort);
+
 }
