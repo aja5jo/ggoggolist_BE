@@ -1,6 +1,7 @@
 package group5.backend.exception;
 
 import group5.backend.domain.user.Category;
+import group5.backend.exception.event.HandleInvalidFilterException;
 import group5.backend.response.ApiResponse;
 import group5.backend.exception.category.MerchantInvalidCategorySizeException;
 import group5.backend.exception.category.UserInvalidCategorySizeException;
@@ -88,11 +89,14 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
-
     //유저 없음
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ApiResponse<?>> handleUserNotFound(UserNotFoundException e) {
         return buildErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
+    }
+    @ExceptionHandler(HandleInvalidFilterException.class)
+    public ResponseEntity<ApiResponse<?>> handleInvalidFilter(HandleInvalidFilterException e) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
     // 그 외 모든 예외
