@@ -1,7 +1,11 @@
 package group5.backend.repository;
 
 import group5.backend.domain.store.Store;
+import group5.backend.domain.user.Category;
 import group5.backend.domain.user.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -16,4 +20,10 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
 
     // 특정 유저(merchant)가 등록한 가게 목록
     List<Store> findByOwner(User owner);
+
+    // ✅ [신규] 카테고리별 스토어 조회 (정렬/개수는 Pageable로 제어)
+    Page<Store> findByCategory(Category category, Pageable pageable);
+
+    // 추가: 전체 + 정렬
+    List<Store> findByCategory(Category category, Sort sort);
 }

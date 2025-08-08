@@ -20,10 +20,11 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 이벤트가 소속된 가게 (팝업 이벤트일 경우 null 허용)
-    @ManyToOne
-    @JoinColumn(name = "store_id")
+    // 이벤트가 소속된 가게 (null 허용 안 함)
+    @ManyToOne(optional = false) // JPA 레벨에서 필수 관계
+    @JoinColumn(name = "store_id", nullable = false) // DB 컬럼도 NOT NULL
     private Store store;
+
 
     @Column(nullable = false)
     private String name;

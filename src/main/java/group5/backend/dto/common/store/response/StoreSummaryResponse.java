@@ -1,5 +1,6 @@
 package group5.backend.dto.common.store.response;
 
+import group5.backend.domain.store.Store;
 import lombok.Builder;
 import lombok.Data;
 
@@ -11,6 +12,16 @@ public class StoreSummaryResponse {
     private String thumbnail;
     private int likeCount;
     private boolean liked;
+
+    public static StoreSummaryResponse from(Store store, boolean liked) {
+        return StoreSummaryResponse.builder()
+                .id(store.getId())
+                .name(store.getName())
+                .thumbnail(store.getThumbnail())
+                .likeCount(store.getLikeCount())
+                .liked(liked)
+                .build();
+    }
 }
 
 

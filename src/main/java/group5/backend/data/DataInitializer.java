@@ -85,7 +85,8 @@ public class DataInitializer {
                     boolean isPopup = (j % 4 == 0); // 가끔만 팝업
 
                     Event event = Event.builder()
-                            .store(isPopup ? null : store) // 팝업 이벤트면 store null 허용
+                            .store(store) // 팝업도 무조건 가게 연결
+                            .isPopup(isPopup)
                             .name("이벤트 " + j + " - " + store.getName())
                             .description(EventTextGenerator.getRandomDescription())
                             .intro(EventTextGenerator.getRandomIntro())
