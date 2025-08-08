@@ -24,6 +24,7 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Component
 @RequiredArgsConstructor
@@ -109,7 +110,7 @@ public class DataInitializer implements ApplicationRunner {
                         .endDate(end)
                         .startTime(LocalTime.of(11, 0))
                         .endTime(LocalTime.of(21, 0))
-                        .likeCount(faker.number().numberBetween(0, 300))
+                        .likeCount(randomLikeCount(0, 200))
                         .build();
 
                 eventRepository.save(event);
@@ -147,7 +148,7 @@ public class DataInitializer implements ApplicationRunner {
                     .startTime(LocalTime.of(12, 0))
                     .endTime(LocalTime.of(20, 0))
                     .address("서울 마포구 임시로 " + (100 + k) + "번지")
-                    .likeCount(random.nextInt(350))
+                    .likeCount(randomLikeCount(0, 200))// ✅ 랜덤 likeCount
                     .build();
 
             popupRepository.save(popup);
@@ -168,5 +169,10 @@ public class DataInitializer implements ApplicationRunner {
                 .filter(u -> u.getRole() == Role.MERCHANT)
                 .toList();
         return merchants.get(random.nextInt(merchants.size()));
+    }
+
+    // ✅ 랜덤 likeCount 생성 메서드
+    private int randomLikeCount(int min, int max) {
+        return ThreadLocalRandom.current().nextInt(min, max + 1);
     }
 }

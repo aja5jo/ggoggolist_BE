@@ -12,112 +12,98 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
+import java.util.List;
 
 @Repository
 public interface EventRepository extends JpaRepository<Event, Long> {
 
-    /* =========================
-       기본
-     ========================= */
-    // 특정 Store에 등록된 모든 Event
+    /* ========== 기본 ========== */
     List<Event> findByStore(Store store);
-
-    // 특정 Store 내에서 이름이 같은 Event
     Optional<Event> findByStoreAndName(Store store, String name);
 
-    /* =========================
-       카테고리 + 진행중 (startDate <= today <= endDate)
-     ========================= */
-    // Page 반환 + N+1 방지
+    /* ========== 카테고리 + 진행중 (inclusive) ========== */
     @EntityGraph(attributePaths = "store")
     Page<Event> findByStore_CategoryAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
-            Category category,
-            LocalDate startLte,
-            LocalDate endGte,
-            Pageable pageable
-    );
+            Category category, LocalDate startLte, LocalDate endGte, Pageable pageable);
 
-    // List 반환 + 정렬 지정 (overview 등에서 top-N 자를 때 유용)
     @EntityGraph(attributePaths = "store")
     List<Event> findByStore_CategoryAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
-            Category category,
-            LocalDate startDate,
-            LocalDate endDate,
-            Sort sort
-    );
+            Category category, LocalDate startLte, LocalDate endGte, Sort sort);
 
-    /* =========================
-       단일 필터 조회용 (POPULAR/ONGOING/CLOSING_TODAY/UPCOMING)
-       - 진행중: (startDate <= today) AND (endDate >= today)
-       - 종료일 null/시작일 null은 '무기한 진행/이미 시작'으로 간주
-     ========================= */
+    /* ========== 단일 필터용 (정렬은 Pageable/Sort로 통일) ========== */
 
-    // ONGOING (정렬: likeCount desc, id desc) — POPULAR과 동일 정렬이므로 서비스에서 그대로 재사용 가능
+    // ONGOING: startDate <= today AND endDate >= today
     @EntityGraph(attributePaths = "store")
     @Query("""
         select e from Event e
-        where (e.startDate is null or e.startDate <= :today)
-          and (e.endDate   is null or e.endDate   >= :today)
-        order by e.likeCount desc, e.id desc
+        where e.startDate <= :today
+          and e.endDate   >= :today
     """)
     Page<Event> findOngoing(@Param("today") LocalDate today, Pageable pageable);
 
-    // POPULAR among ONGOING (정렬 동일, 네이밍만 POPULAR에 맞춰 분리)
     @EntityGraph(attributePaths = "store")
     @Query("""
         select e from Event e
-        where (e.startDate is null or e.startDate <= :today)
-          and (e.endDate   is null or e.endDate   >= :today)
-        order by e.likeCount desc, e.id desc
+        where e.startDate <= :today
+          and e.endDate   >= :today
     """)
-    Page<Event> findPopularAmongOngoing(@Param("today") LocalDate today, Pageable pageable);
+    List<Event> findOngoing(@Param("today") LocalDate today, Sort sort);
 
-    // CLOSING_TODAY: 오늘 종료되는 이벤트
+    // CLOSING_TODAY: endDate = today
     @EntityGraph(attributePaths = "store")
     @Query("""
         select e from Event e
         where e.endDate = :today
-        order by e.likeCount desc, e.id desc
     """)
     Page<Event> findClosingToday(@Param("today") LocalDate today, Pageable pageable);
 
-    // UPCOMING: 앞으로 시작할 예정 (시작일 > today)
-    @EntityGraph(attributePaths = "store")
-    @Query("""
-        select e from Event e
-        where e.startDate > :today
-        order by e.startDate asc, e.id asc
-    """)
-    Page<Event> findUpcoming(@Param("today") LocalDate today, Pageable pageable);
-
-    /* =========================
-       overview 최적화용 (원하면 사용)
-       - Page 대신 List로 top-N만 뽑고 싶을 때 Sort + Pageable.ofSize(N) 조합을 서비스에서 사용해도 됨
-       - 필요 없으면 이 섹션은 무시 가능
-     ========================= */
-
-    @EntityGraph(attributePaths = "store")
-    @Query("""
-        select e from Event e
-        where (e.startDate is null or e.startDate <= :today)
-          and (e.endDate   is null or e.endDate   >= :today)
-    """)
-    List<Event> findOngoingList(@Param("today") LocalDate today, Sort sort);
-
     @EntityGraph(attributePaths = "store")
     @Query("""
         select e from Event e
         where e.endDate = :today
     """)
+    List<Event> findClosingToday(@Param("today") LocalDate today, Sort sort);
+
+    @EntityGraph(attributePaths = "store")
+    @Query("""
+    select e from Event e
+    where e.endDate = :today
+""")
     List<Event> findClosingTodayList(@Param("today") LocalDate today, Sort sort);
+
+    // UPCOMING: startDate > today
+    @EntityGraph(attributePaths = "store")
+    @Query("""
+        select e from Event e
+        where e.startDate > :today
+    """)
+    Page<Event> findUpcoming(@Param("today") LocalDate today, Pageable pageable);
 
     @EntityGraph(attributePaths = "store")
     @Query("""
         select e from Event e
         where e.startDate > :today
     """)
-    List<Event> findUpcomingList(@Param("today") LocalDate today, Sort sort);
+    List<Event> findUpcoming(@Param("today") LocalDate today, Sort sort);
+
+    // 진행중
+    @Query("SELECT e FROM Event e " +
+            "WHERE :today BETWEEN e.startDate AND e.endDate " +
+            "ORDER BY e.likeCount DESC, e.id DESC")
+    List<Event> findOngoingList(@Param("today") LocalDate today);
+
+    // 오늘 마감
+    @Query("SELECT e FROM Event e " +
+            "WHERE e.endDate = :today " +
+            "ORDER BY e.likeCount DESC, e.id DESC")
+    List<Event> findClosingTodayList(@Param("today") LocalDate today);
+
+    // 예정
+    @Query("SELECT e FROM Event e " +
+            "WHERE e.startDate > :today " +
+            "ORDER BY e.startDate ASC, e.id ASC")
+    List<Event> findUpcomingList(@Param("today") LocalDate today);
 }

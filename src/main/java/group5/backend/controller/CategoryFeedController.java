@@ -22,12 +22,13 @@ public class CategoryFeedController {
     private final CategoryFeedService categoryFeedService;
 
     @Operation(
-            summary = "카테고리별 스토어/이벤트 조회",
+            summary = "카테고리별 스토어/이벤트/팝업 조회",
             description = """
             - 비로그인: 모든 카테고리(알파벳 순)
             - USER: 관심 카테고리 최대 3개 먼저(알파벳) → 나머지
             - MERCHANT: 본인 카테고리 1개 먼저 → 나머지
-            - 각 카테고리마다 스토어+이벤트 합쳐서 4개 반환(이벤트는 진행 중만)
+            - 각 카테고리마다 스토어+이벤트+팝업 합쳐서 4개 반환
+            - 이벤트/팝업은 진행 중만(startDate ≤ today ≤ endDate)
             """
     )
     @GetMapping

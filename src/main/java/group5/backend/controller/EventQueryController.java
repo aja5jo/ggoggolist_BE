@@ -1,6 +1,7 @@
 package group5.backend.controller;
 
 import group5.backend.domain.user.User;
+import group5.backend.dto.category.response.CategoryFeedItemResponse;
 import group5.backend.dto.common.event.FilterType;
 import group5.backend.dto.common.event.response.EventOverviewResponse;
 import group5.backend.dto.common.event.response.EventPageResponse;
@@ -20,7 +21,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/events")
@@ -29,51 +30,37 @@ public class EventQueryController {
 
     private final EventQueryService eventQueryService;
 
-    /**
-     * 1) 단일 필터 조회: /api/events?filter=POPULAR|ONGOING|CLOSING_TODAY|UPCOMING
-     */
     @Operation(
-            summary = "필터 조건별 이벤트 목록 조회",
+            summary = "이벤트/팝업 조회 (필터별 or 전체 Overview)",
             description = """
+            - **filter 쿼리 파라미터가 있는 경우** → 해당 필터 조건(POPULAR, ONGOING, CLOSING_TODAY, UPCOMING)에 맞는 이벤트+팝업 목록 반환
+            - **filter가 없는 경우** → 인기/진행중/오늘마감/예정 섹션별 8개씩(이벤트+팝업 섞임) 전체 Overview 반환
             - 로그인 불필요(공개). 로그인 시 'liked' 반영
-            - filter: POPULAR, ONGOING, CLOSING_TODAY, UPCOMING
-            - 페이징/정렬은 요청 Pageable 그대로 사용
+            - 정렬 기준:
+              · 인기 / 진행중 / 오늘마감 → likeCount desc, id desc
+              · 예정 → startDate asc, id asc
             """
     )
-    @GetMapping(params = "filter")
-    @Transactional(readOnly = true)
-    public ResponseEntity<ApiResponse> getEventsByFilter(
-            @Parameter(description = "필터 타입", example = "POPULAR", required = true)
-            @RequestParam FilterType filter,
-            @AuthenticationPrincipal User loginUser,
-            @ParameterObject
-            @PageableDefault(size = 20, sort = {"likeCount","id"}, direction = Sort.Direction.DESC)
-            Pageable pageable
-    ) {
-        Long userId = (loginUser == null) ? null : loginUser.getId();
-        EventPageResponse data = eventQueryService.getEvents(filter, userId, pageable);
-        return ResponseEntity.ok(new ApiResponse(true, 200, "이벤트 목록 조회 성공", data));
-    }
-
-    /**
-     * 2) 전체(overview) 조회: /api/events
-     *    인기/진행중/오늘마감/예정 섹션별 8개 고정
-     */
-    @Operation(
-            summary = "이벤트 전체(인기/진행중/오늘마감/예정) 묶음 조회",
-            description = """
-            - 로그인 불필요(공개). 로그인 시 'liked' 반영
-            - 섹션별 8개씩 고정 반환 (서비스 상수 OVERVIEW_TOP_N)
-            - 쿼리 파라미터 없이 호출
-            """
-    )
+    @Parameter(name = "filter", description = "필터 타입 (POPULAR, ONGOING, CLOSING_TODAY, UPCOMING)", required = false, example = "POPULAR")
     @GetMapping
     @Transactional(readOnly = true)
-    public ResponseEntity<ApiResponse> getEventOverview(
+    public ResponseEntity<ApiResponse> getEventsOrOverview(
+            @RequestParam(value = "filter", required = false) FilterType filter,
             @AuthenticationPrincipal User loginUser
     ) {
         Long userId = (loginUser == null) ? null : loginUser.getId();
-        EventOverviewResponse data = eventQueryService.getEventOverview(userId);
-        return ResponseEntity.ok(new ApiResponse(true, 200, "이벤트 전체 목록 조회 성공", data));
+
+        if (filter != null) {
+            // 필터별 조회
+            List<CategoryFeedItemResponse> data = eventQueryService.getEventsByFilter(filter, userId);
+            return ResponseEntity.ok(new ApiResponse(true, 200, "필터별 조회 성공", data));
+        } else {
+            // 전체 overview 조회
+            EventOverviewResponse data = eventQueryService.getEventOverview(userId);
+            return ResponseEntity.ok(new ApiResponse(true, 200, "전체 overview 조회 성공", data));
+        }
     }
 }
+
+
+

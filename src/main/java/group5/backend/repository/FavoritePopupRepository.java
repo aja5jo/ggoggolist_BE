@@ -26,5 +26,6 @@ public interface FavoritePopupRepository extends JpaRepository<FavoritePopup, Lo
 
     // 존재 여부 (성능용)
     boolean existsByUserIdAndPopupId(Long userId, Long popupId);
+
 }
 

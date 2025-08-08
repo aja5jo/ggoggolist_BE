@@ -1,5 +1,7 @@
 package group5.backend.dto.common.event.response;
 
+import group5.backend.dto.category.response.CategoryFeedItemResponse;
+import group5.backend.dto.common.popup.response.PopupSummaryResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,26 +13,24 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class EventOverviewResponse {
-    private List<EventSummaryResponse> popular;
-    private List<EventSummaryResponse> ongoing;
-    private List<EventSummaryResponse> closingToday;
-    private List<EventSummaryResponse> upcoming;
 
-    // 정적 팩토리 메서드
+public class EventOverviewResponse {
+    private List<CategoryFeedItemResponse> popular;       // EVENT/POPUP 섞임
+    private List<CategoryFeedItemResponse> ongoing;       // "
+    private List<CategoryFeedItemResponse> closingToday;  // "
+    private List<CategoryFeedItemResponse> upcoming;      // "
+
     public static EventOverviewResponse of(
-            List<EventSummaryResponse> popular,
-            List<EventSummaryResponse> ongoing,
-            List<EventSummaryResponse> closingToday,
-            List<EventSummaryResponse> upcoming
+            List<CategoryFeedItemResponse> popular,
+            List<CategoryFeedItemResponse> ongoing,
+            List<CategoryFeedItemResponse> closingToday,
+            List<CategoryFeedItemResponse> upcoming
     ) {
         return EventOverviewResponse.builder()
-                .popular(popular)
-                .ongoing(ongoing)
-                .closingToday(closingToday)
-                .upcoming(upcoming)
+                .popular(popular == null ? List.of() : popular)
+                .ongoing(ongoing == null ? List.of() : ongoing)
+                .closingToday(closingToday == null ? List.of() : closingToday)
+                .upcoming(upcoming == null ? List.of() : upcoming)
                 .build();
     }
 }
-
-
