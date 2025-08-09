@@ -1,6 +1,6 @@
-package group5.backend.domain.event;
-
-import group5.backend.domain.store.Store;
+package group5.backend.domain.popup;
+import group5.backend.domain.user.Category;
+import group5.backend.domain.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
@@ -8,26 +8,30 @@ import java.time.LocalTime;
 import java.util.List;
 
 @Entity
-@Table(name = "events")
+@Table(name = "popups")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Event {
+public class Popup {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 이벤트가 소속된 가게 (null 허용 안 함)
-    @ManyToOne(optional = false) // JPA 레벨에서 필수 관계
-    @JoinColumn(name = "store_id", nullable = false) // DB 컬럼도 NOT NULL
-    private Store store;
+    // 팝업 생성 유저 (1:N 관계)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Category category;   // ✅ 추가
 
     @Column(nullable = false)
     private String name;
 
-    @Column(name = "description", nullable = false)
+    @Column(nullable = false)
     private String description;
 
     private String intro;
@@ -36,7 +40,7 @@ public class Event {
     private String thumbnail;
 
     @ElementCollection
-    @CollectionTable(name = "event_images", joinColumns = @JoinColumn(name = "event_id"))
+    @CollectionTable(name = "popup_images", joinColumns = @JoinColumn(name = "popup_id"))
     @Column(name = "image_url")
     private List<String> images;
 
@@ -52,8 +56,10 @@ public class Event {
     @Column(nullable = false)
     private LocalTime endTime;
 
+    @Column(nullable = false)
+    private String address;   // 팝업 주소
+
     @Column(name = "like_count", nullable = false)
     private int likeCount;
-
 }
 

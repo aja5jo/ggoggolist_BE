@@ -20,5 +20,4 @@ public class EventCreateResponse {
     private LocalDate endDate;
     private LocalTime startTime;
     private LocalTime endTime;
-    private Boolean isPopup;
 }

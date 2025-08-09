@@ -1,6 +1,7 @@
 package group5.backend.domain.user;
 
 import group5.backend.domain.event.FavoriteEvent;
+import group5.backend.domain.popup.FavoritePopup;
 import group5.backend.domain.store.FavoriteStore;
 import group5.backend.domain.store.Store;
 import group5.backend.exception.category.MerchantInvalidCategorySizeException;
@@ -47,10 +48,13 @@ public class User implements UserDetails {
     private Role role; // USER, MERCHANT
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<FavoriteStore> favoriteStores = new ArrayList<>();
+    private List<FavoriteStore> favoriteStores;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<FavoriteEvent> favoriteEvents = new ArrayList<>();
+    private List<FavoriteEvent> favoriteEvents;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FavoritePopup> favoritePopups; // ✅ 새로 추가
 
     @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private Store store;

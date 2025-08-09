@@ -10,7 +10,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create-drop  # 초기에는 create-drop, 나중에 배포 전에 update로 바꿔주기!
+      ddl-auto: create  # 초기에는 create, 나중에 배포 전에 update로 바꿔주기!
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect

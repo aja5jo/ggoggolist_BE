@@ -36,6 +36,4 @@ public class EventCreateRequest {
     @NotNull(message = "이벤트 종료 시간은 필수입니다.")
     private LocalTime endTime;
 
-    @NotNull(message = "팝업 여부는 필수입니다.")
-    private Boolean isPopup;
 }

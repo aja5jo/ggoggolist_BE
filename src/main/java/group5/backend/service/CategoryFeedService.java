@@ -8,12 +8,9 @@ import group5.backend.dto.category.response.CategoryFeedItemResponse;
 
 import group5.backend.dto.category.response.CategoryWithContentsResponse;
 import group5.backend.dto.common.event.response.EventSummaryResponse;
+import group5.backend.dto.common.popup.response.PopupSummaryResponse;
 import group5.backend.dto.common.store.response.StoreSummaryResponse;
-import group5.backend.repository.EventRepository;
-import group5.backend.repository.FavoriteEventRepository;
-import group5.backend.repository.FavoriteStoreRepository;
-import group5.backend.repository.StoreRepository;
-import group5.backend.repository.UserRepository;
+import group5.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -37,13 +34,17 @@ public class CategoryFeedService {
     private final FavoriteStoreRepository favoriteStoreRepository;
     private final FavoriteEventRepository favoriteEventRepository;
 
+    // ✅ 추가: 팝업/즐겨찾기 팝업
+    private final PopupRepository popupRepository;
+    private final FavoritePopupRepository favoritePopupRepository;
+
     /**
-     * 카테고리별: 가게+이벤트를 합쳐 likeCount desc, id desc로 정렬 후 상위 totalLimitPerCategory만 반환.
+     * 카테고리별: 가게+이벤트+팝업을 합쳐 likeCount desc, id desc 정렬 후 상위 totalLimitPerCategory만 반환.
      * 응답은 CategoryContent.items(합산 TopN)만 채워서 내려간다.
      */
     public CategoryWithContentsResponse buildCategoryFeed(User loginUser, int totalLimitPerCategory) {
 
-        // 1) 요청 시점에 유저 최신화 (POST로 관심카테고리 바꾼 직후도 반영)
+        // 1) 요청 시점에 유저 최신화
         User freshUser = null;
         if (loginUser != null) {
             freshUser = userRepository.findById(loginUser.getId()).orElse(null);
@@ -83,36 +84,58 @@ public class CategoryFeedService {
                     ))
                     .collect(Collectors.toList());
 
-            // 5) 합산 정렬용 내부 타입
+            // ✅ 4-1) 후보 팝업(진행 중)
+            List<PopupSummaryResponse> popupCandidates = popupRepository
+                    .findByCategoryAndStartDateLessThanEqualAndEndDateGreaterThanEqual(c, today, today, page)
+                    .stream()
+                    .map(p -> PopupSummaryResponse.from(
+                            p,
+                            userId != null && favoritePopupRepository.existsByUserIdAndPopupId(userId, p.getId())
+                    ))
+                    .collect(Collectors.toList());
+
+            // 5) 합산 정렬용 내부 타입 → 3종으로 일반화
             class MixedItem {
+                private final FeedItemType type; // STORE / EVENT / POPUP
                 private final Integer likeCount;
                 private final Long id;
-                private final boolean isStore;
                 private final StoreSummaryResponse store;
                 private final EventSummaryResponse event;
+                private final PopupSummaryResponse popup;
 
-                MixedItem(Integer likeCount, Long id, boolean isStore,
-                          StoreSummaryResponse store, EventSummaryResponse event) {
+                MixedItem(FeedItemType type, Integer likeCount, Long id,
+                          StoreSummaryResponse store,
+                          EventSummaryResponse event,
+                          PopupSummaryResponse popup) {
+                    this.type = type;
                     this.likeCount = likeCount;
                     this.id = id;
-                    this.isStore = isStore;
                     this.store = store;
                     this.event = event;
+                    this.popup = popup;
                 }
             }
 
             // 6) 합치고 정렬
-            List<MixedItem> merged = new ArrayList<>(storeCandidates.size() + eventCandidates.size());
+            List<MixedItem> merged = new ArrayList<>(
+                    storeCandidates.size() + eventCandidates.size() + popupCandidates.size()
+            );
+
             for (StoreSummaryResponse s : storeCandidates) {
-                merged.add(new MixedItem(s.getLikeCount(), s.getId(), true, s, null));
+                merged.add(new MixedItem(FeedItemType.STORE, s.getLikeCount(), s.getId(), s, null, null));
             }
             for (EventSummaryResponse e : eventCandidates) {
-                merged.add(new MixedItem(e.getLikeCount(), e.getId(), false, null, e));
+                merged.add(new MixedItem(FeedItemType.EVENT, e.getLikeCount(), e.getId(), null, e, null));
+            }
+            for (PopupSummaryResponse p : popupCandidates) {
+                merged.add(new MixedItem(FeedItemType.POPUP, p.getLikeCount(), p.getId(), null, null, p));
             }
 
-            merged.sort(Comparator
-                    .comparing((MixedItem m) -> m.likeCount).reversed()
-                    .thenComparing((MixedItem m) -> m.id).reversed());
+            merged.sort(
+                    Comparator.comparing((MixedItem m) -> m.likeCount, Comparator.reverseOrder())
+                            .thenComparing((MixedItem m) -> m.id,        Comparator.reverseOrder())
+            );
+
 
             if (merged.size() > totalLimitPerCategory) {
                 merged = new ArrayList<>(merged.subList(0, totalLimitPerCategory));
@@ -121,32 +144,47 @@ public class CategoryFeedService {
             // 7) 최종 items 구성 (정렬 순서 유지)
             List<CategoryFeedItemResponse> items = new ArrayList<>(merged.size());
             for (MixedItem mi : merged) {
-                if (mi.isStore) {
-                    StoreSummaryResponse s = mi.store;
-                    items.add(new CategoryFeedItemResponse(
-                            FeedItemType.STORE,
-                            s.getId(),
-                            s.getName(),
-                            s.getThumbnail(),
-                            s.getLikeCount(),
-                            s.isLiked(),
-                            null,
-                            null,
-                            null
-                    ));
-                } else {
-                    EventSummaryResponse e = mi.event;
-                    items.add(new CategoryFeedItemResponse(
-                            FeedItemType.EVENT,
-                            e.getId(),
-                            e.getName(),
-                            e.getThumbnail(),
-                            e.getLikeCount(),
-                            e.isLiked(),
-                            e.getDescription(),
-                            e.getStartDate(),
-                            e.getEndDate()
-                    ));
+                switch (mi.type) {
+                    case STORE -> {
+                        StoreSummaryResponse s = mi.store;
+                        items.add(new CategoryFeedItemResponse(
+                                FeedItemType.STORE,
+                                s.getId(),
+                                s.getName(),
+                                s.getThumbnail(),
+                                s.getLikeCount(),
+                                s.isLiked(),
+                                null, null, null
+                        ));
+                    }
+                    case EVENT -> {
+                        EventSummaryResponse e = mi.event;
+                        items.add(new CategoryFeedItemResponse(
+                                FeedItemType.EVENT,
+                                e.getId(),
+                                e.getName(),
+                                e.getThumbnail(),
+                                e.getLikeCount(),
+                                e.isLiked(),
+                                e.getDescription(),
+                                e.getStartDate(),
+                                e.getEndDate()
+                        ));
+                    }
+                    case POPUP -> {
+                        PopupSummaryResponse p = mi.popup;
+                        items.add(new CategoryFeedItemResponse(
+                                FeedItemType.POPUP,
+                                p.getId(),
+                                p.getName(),
+                                p.getThumbnail(),
+                                p.getLikeCount(),
+                                p.isLiked(),
+                                p.getDescription(),
+                                p.getStartDate(),
+                                p.getEndDate()
+                        ));
+                    }
                 }
             }
 
@@ -158,18 +196,16 @@ public class CategoryFeedService {
     }
 
     /**
-     * 단일 카테고리: 가게+이벤트 합쳐 likeCount desc, id desc로 '전체' 반환
+     * 단일 카테고리: 가게+이벤트+팝업 합쳐 likeCount desc, id desc로 '전체' 반환
      * 응답은 CategoryContent.items 만 포함
      */
     public CategoryContent buildSingleCategoryFeed(User loginUser, Category category) {
-        // 1) 유저 최신화 (POST 직후에도 반영)
+        // 1) 유저 최신화
         User freshUser = null;
         if (loginUser != null) {
             freshUser = userRepository.findById(loginUser.getId()).orElse(null);
         }
         Long userId = (freshUser == null) ? null : freshUser.getId();
-
-        // 2) 카테고리 파싱 (불필요 → 바로 category 사용)
 
         // 3) 정렬 기준
         Sort sort = Sort.by(Sort.Direction.DESC, "likeCount")
@@ -195,72 +231,106 @@ public class CategoryFeedService {
                         ))
                         .collect(Collectors.toList());
 
+        // ✅ 팝업도 합류(전체)
+        List<PopupSummaryResponse> popupCandidates =
+                popupRepository.findByCategoryAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+                                category, today, today, sort).stream()
+                        .map(p -> PopupSummaryResponse.from(
+                                p,
+                                userId != null && favoritePopupRepository.existsByUserIdAndPopupId(userId, p.getId())
+                        ))
+                        .collect(Collectors.toList());
+
         // 5) 합산 정렬
         class MixedItem {
+            private final FeedItemType type;
             private final Integer likeCount;
             private final Long id;
-            private final boolean isStore;
             private final StoreSummaryResponse store;
             private final EventSummaryResponse event;
+            private final PopupSummaryResponse popup;
 
-            MixedItem(Integer likeCount, Long id, boolean isStore,
-                      StoreSummaryResponse store, EventSummaryResponse event) {
+            MixedItem(FeedItemType type, Integer likeCount, Long id,
+                      StoreSummaryResponse store, EventSummaryResponse event, PopupSummaryResponse popup) {
+                this.type = type;
                 this.likeCount = likeCount;
                 this.id = id;
-                this.isStore = isStore;
                 this.store = store;
                 this.event = event;
+                this.popup = popup;
             }
         }
 
-        List<MixedItem> merged = new ArrayList<>(storeCandidates.size() + eventCandidates.size());
+        List<MixedItem> merged = new ArrayList<>(
+                storeCandidates.size() + eventCandidates.size() + popupCandidates.size()
+        );
         for (StoreSummaryResponse s : storeCandidates) {
-            merged.add(new MixedItem(s.getLikeCount(), s.getId(), true, s, null));
+            merged.add(new MixedItem(FeedItemType.STORE, s.getLikeCount(), s.getId(), s, null, null));
         }
         for (EventSummaryResponse e : eventCandidates) {
-            merged.add(new MixedItem(e.getLikeCount(), e.getId(), false, null, e));
+            merged.add(new MixedItem(FeedItemType.EVENT, e.getLikeCount(), e.getId(), null, e, null));
+        }
+        for (PopupSummaryResponse p : popupCandidates) {
+            merged.add(new MixedItem(FeedItemType.POPUP, p.getLikeCount(), p.getId(), null, null, p));
         }
 
-        merged.sort(Comparator
-                .comparing((MixedItem m) -> m.likeCount).reversed()
-                .thenComparing((MixedItem m) -> m.id).reversed());
+        merged.sort(
+                Comparator.comparing((MixedItem m) -> m.likeCount, Comparator.reverseOrder())
+                        .thenComparing((MixedItem m) -> m.id,        Comparator.reverseOrder())
+        );
+
 
         // 6) items 조립
         List<CategoryFeedItemResponse> items = new ArrayList<>(merged.size());
         for (MixedItem mi : merged) {
-            if (mi.isStore) {
-                StoreSummaryResponse s = mi.store;
-                items.add(new CategoryFeedItemResponse(
-                        FeedItemType.STORE,
-                        s.getId(),
-                        s.getName(),
-                        s.getThumbnail(),
-                        s.getLikeCount(),
-                        s.isLiked(),
-                        null,
-                        null,
-                        null
-                ));
-            } else {
-                EventSummaryResponse e = mi.event;
-                items.add(new CategoryFeedItemResponse(
-                        FeedItemType.EVENT,
-                        e.getId(),
-                        e.getName(),
-                        e.getThumbnail(),
-                        e.getLikeCount(),
-                        e.isLiked(),
-                        e.getDescription(),
-                        e.getStartDate(),
-                        e.getEndDate()
-                ));
+            switch (mi.type) {
+                case STORE -> {
+                    StoreSummaryResponse s = mi.store;
+                    items.add(new CategoryFeedItemResponse(
+                            FeedItemType.STORE,
+                            s.getId(),
+                            s.getName(),
+                            s.getThumbnail(),
+                            s.getLikeCount(),
+                            s.isLiked(),
+                            null, null, null
+                    ));
+                }
+                case EVENT -> {
+                    EventSummaryResponse e = mi.event;
+                    items.add(new CategoryFeedItemResponse(
+                            FeedItemType.EVENT,
+                            e.getId(),
+                            e.getName(),
+                            e.getThumbnail(),
+                            e.getLikeCount(),
+                            e.isLiked(),
+                            e.getDescription(),
+                            e.getStartDate(),
+                            e.getEndDate()
+                    ));
+                }
+                case POPUP -> {
+                    PopupSummaryResponse p = mi.popup;
+                    items.add(new CategoryFeedItemResponse(
+                            FeedItemType.POPUP,
+                            p.getId(),
+                            p.getName(),
+                            p.getThumbnail(),
+                            p.getLikeCount(),
+                            p.isLiked(),
+                            p.getDescription(),
+                            p.getStartDate(),
+                            p.getEndDate()
+                    ));
+                }
             }
         }
 
         return CategoryContent.of(category, items);
     }
 
-    // (참고) 기존 전체 카테고리용 buildCategoryFeed(...)는 그대로 유지
+    // (참고) 기존 전체 카테고리용 buildCategoryFeed(...)는 위 구현
 
     /**
      * 카테고리 정렬:
@@ -306,9 +376,3 @@ public class CategoryFeedService {
         return ordered;
     }
 }
-
-
-
-
-
-
