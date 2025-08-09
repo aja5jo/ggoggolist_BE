@@ -15,5 +15,6 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     Optional<Store> findByName(String name);
 
     // 특정 유저(merchant)가 등록한 가게 목록
-    List<Store> findByOwner(User owner);
+    Optional<Store> findByOwner(User user);
+
 }

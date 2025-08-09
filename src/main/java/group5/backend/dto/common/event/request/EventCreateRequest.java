@@ -13,7 +13,7 @@ public class EventCreateRequest {
     private String name;
 
     @NotBlank(message = "이벤트 대표 소개글은 필수 입력값입니다.")
-    private String desc;
+    private String description;
 
     @NotBlank(message = "이벤트 상세 설명은 필수 입력값입니다.")
     private String intro;

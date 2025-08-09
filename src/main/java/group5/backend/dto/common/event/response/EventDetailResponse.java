@@ -13,7 +13,7 @@ import java.util.List;
 public class EventDetailResponse {
     private Integer id;
     private String name;
-    private String desc;
+    private String description;
     private String intro;
     private String thumbnail;
     private List<String> images;

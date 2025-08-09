@@ -12,7 +12,7 @@ public class EventCreateResponse {
     private Long id;
     private Long storeId;
     private String name;
-    private String desc;
+    private String description;
     private String intro;
     private String thumbnail;
     private List<String> images;

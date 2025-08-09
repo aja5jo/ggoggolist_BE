@@ -28,8 +28,8 @@ public class Event {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
-    private String desc;
+    @Column(name = "description", nullable = false)
+    private String description;
 
     private String intro;
 
