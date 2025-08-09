@@ -57,7 +57,8 @@ public class WebSecurityConfig {
                                 "/v3/api-docs/**",
                                 "/v3/api-docs/swagger-config",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html"
+                                "/swagger-ui.html",
+                                "/api/translate-full-page"
                         ).permitAll()
                         .requestMatchers("/api/signup", "/api/login").permitAll()
                         .requestMatchers("/api/users/**").hasAuthority("USER")  // 수정됨
