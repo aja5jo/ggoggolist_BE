@@ -23,4 +23,6 @@ public interface FavoriteStoreRepository extends JpaRepository<FavoriteStore, Lo
 
     // 유저와 스토어를 기준으로 즐겨찾기 삭제
     void deleteByUserAndStore(User user, Store store);
+
+    boolean existsByUserIdAndStoreId(Long userId, Long storeId);
 }

@@ -1,0 +1,66 @@
+package group5.backend.controller;
+
+import group5.backend.domain.user.User;
+import group5.backend.dto.category.response.CategoryFeedItemResponse;
+import group5.backend.dto.common.event.FilterType;
+import group5.backend.dto.common.event.response.EventOverviewResponse;
+import group5.backend.dto.common.event.response.EventPageResponse;
+import group5.backend.response.ApiResponse;
+import group5.backend.service.EventQueryService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/events")
+@RequiredArgsConstructor
+public class EventQueryController {
+
+    private final EventQueryService eventQueryService;
+
+    @Operation(
+            summary = "이벤트/팝업 조회 (필터별 or 전체 Overview)",
+            description = """
+            - **filter 쿼리 파라미터가 있는 경우** → 해당 필터 조건(POPULAR, ONGOING, CLOSING_TODAY, UPCOMING)에 맞는 이벤트+팝업 목록 반환
+            - **filter가 없는 경우** → 인기/진행중/오늘마감/예정 섹션별 8개씩(이벤트+팝업 섞임) 전체 Overview 반환
+            - 로그인 불필요(공개). 로그인 시 'liked' 반영
+            - 정렬 기준:
+              · 인기 / 진행중 / 오늘마감 → likeCount desc, id desc
+              · 예정 → startDate asc, id asc
+            """
+    )
+    @Parameter(name = "filter", description = "필터 타입 (POPULAR, ONGOING, CLOSING_TODAY, UPCOMING)", required = false, example = "POPULAR")
+    @GetMapping
+    @Transactional(readOnly = true)
+    public ResponseEntity<ApiResponse> getEventsOrOverview(
+            @RequestParam(value = "filter", required = false) FilterType filter,
+            @AuthenticationPrincipal User loginUser
+    ) {
+        Long userId = (loginUser == null) ? null : loginUser.getId();
+
+        if (filter != null) {
+            // 필터별 조회
+            List<CategoryFeedItemResponse> data = eventQueryService.getEventsByFilter(filter, userId);
+            return ResponseEntity.ok(new ApiResponse(true, 200, "필터별 조회 성공", data));
+        } else {
+            // 전체 overview 조회
+            EventOverviewResponse data = eventQueryService.getEventOverview(userId);
+            return ResponseEntity.ok(new ApiResponse(true, 200, "전체 overview 조회 성공", data));
+        }
+    }
+}
+
+
+

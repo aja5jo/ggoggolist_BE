@@ -39,7 +39,6 @@ public class EventService {
 
         // 3. Event 엔티티 생성
         Event event = Event.builder()
-                .store(request.getIsPopup() ? null : store) // 팝업 이벤트는 store 없음
                 .name(request.getName())
                 .description(request.getDescription())
                 .intro(request.getIntro())
@@ -49,7 +48,6 @@ public class EventService {
                 .endDate(request.getEndDate())
                 .startTime(request.getStartTime())
                 .endTime(request.getEndTime())
-                .isPopup(request.getIsPopup())
                 .likeCount(0)
                 .build();
 
@@ -67,7 +65,6 @@ public class EventService {
                 .endDate(saved.getEndDate())
                 .startTime(saved.getStartTime())
                 .endTime(saved.getEndTime())
-                .isPopup(saved.getIsPopup())
                 .build();
     }
 
@@ -91,7 +88,6 @@ public class EventService {
                         .endDate(event.getEndDate())
                         .startTime(event.getStartTime())
                         .endTime(event.getEndTime())
-                        .isPopup(event.getIsPopup())
                         .likeCount(event.getLikeCount())
                         .build())
                 .collect(Collectors.toList());
@@ -124,7 +120,6 @@ public class EventService {
         event.setEndDate(request.getEndDate());
         event.setStartTime(request.getStartTime());
         event.setEndTime(request.getEndTime());
-        event.setIsPopup(request.getIsPopup());
 
         Event updated = eventRepository.save(event);
 
@@ -140,7 +135,6 @@ public class EventService {
                 .endDate(updated.getEndDate())
                 .startTime(updated.getStartTime())
                 .endTime(updated.getEndTime())
-                .isPopup(updated.getIsPopup())
                 .build();
     }
 
@@ -156,7 +150,6 @@ public class EventService {
             throw new AccessDeniedException("본인의 이벤트만 수정할 수 있습니다.");
         }
 
-        // 필드가 null이 아닐 때만 업데이트
         if (request.getName() != null) event.setName(request.getName());
         if (request.getDescription() != null) event.setDescription(request.getDescription());
         if (request.getIntro() != null) event.setIntro(request.getIntro());
@@ -166,7 +159,6 @@ public class EventService {
         if (request.getEndDate() != null) event.setEndDate(request.getEndDate());
         if (request.getStartTime() != null) event.setStartTime(request.getStartTime());
         if (request.getEndTime() != null) event.setEndTime(request.getEndTime());
-        if (request.getIsPopup() != null) event.setIsPopup(request.getIsPopup());
 
         Event updated = eventRepository.save(event);
 
@@ -182,7 +174,6 @@ public class EventService {
                 .endDate(updated.getEndDate())
                 .startTime(updated.getStartTime())
                 .endTime(updated.getEndTime())
-                .isPopup(updated.getIsPopup())
                 .build();
     }
 

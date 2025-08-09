@@ -1,41 +1,36 @@
 package group5.backend.domain.user;
 
 import group5.backend.domain.event.FavoriteEvent;
+import group5.backend.domain.popup.FavoritePopup;
 import group5.backend.domain.store.FavoriteStore;
 import group5.backend.domain.store.Store;
 import group5.backend.exception.category.MerchantInvalidCategorySizeException;
 import group5.backend.exception.category.UserInvalidCategorySizeException;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
-@Table(name="users")
+@Table(name = "users")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Data
 @Entity
-//UserDetails: 스프링 시큐리티에서 사용자의 인증 정보를 담아두는 인터페이스
 public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="id",updatable = false)
+    @Column(name = "id", updatable = false)
     private Long id;
 
-    @Column(name="email",nullable = false,unique = true)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name="password")
+    @Column(name = "password")
     private String password;
 
     @ElementCollection(fetch = FetchType.EAGER)
@@ -45,11 +40,12 @@ public class User implements UserDetails {
             joinColumns = @JoinColumn(name = "user_id")
     )
     @Column(name = "category")
-    private List<Category> categories;
+    @Builder.Default
+    private List<Category> categories = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role;
+    private Role role; // USER, MERCHANT
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FavoriteStore> favoriteStores;
@@ -57,76 +53,56 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FavoriteEvent> favoriteEvents;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FavoritePopup> favoritePopups; // ✅ 새로 추가
+
     @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private Store store;
 
-    //사용자가 갖고 있는 권한 목록 반환
-    /**
-     * GrantedAuthority: Spring Security에서 사용자의 권한(role)을 표현
-     * getAuthorities(): 현재 로그인된 사용자의 권한 목록을 반환하는 메서드
-     * */
-
+    /* -------------------- UserDetails -------------------- */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name())); // "USER" or "MERCHANT"
     }
 
-
-    //사용자 비번 반환
     @Override
     public String getPassword() {
         return password;
     }
 
-    //사용자 이름 반환
     @Override
     public String getUsername() {
         return email;
     }
 
-    //계정이 만료되지 않으면 true를 반환
     @Override
-    public boolean isAccountNonExpired() {
-        //만료되었는지 확인하는 로직
-        return true;
-    }
+    public boolean isAccountNonExpired() { return true; }
 
-    //계정이 잠금되었는지 확인
     @Override
-    public boolean isAccountNonLocked() {
-        //계정 잠금되었는지 확인하는 로직
-        return true;
-    }
+    public boolean isAccountNonLocked() { return true; }
 
-    //비밀번호가 만료되었는지 확인
     @Override
-    public boolean isCredentialsNonExpired() {
-        //패스워드가 만료되었는지 확인하는 로직
-        return true;
-    }
+    public boolean isCredentialsNonExpired() { return true; }
 
-    //계정이 사용 가능한지 확인
     @Override
-    public boolean isEnabled() {
-        //계정이 사용 가능한지 확인하는 로직
-        return true;
-    }
+    public boolean isEnabled() { return true; }
 
-    //Role이 user인 경우 카테고리 설정
+    /* -------------------- Category Logic -------------------- */
+
+    /** USER 카테고리 토글 */
     public void toggleCategory(Category category) {
         if (this.categories == null) {
             this.categories = new ArrayList<>();
         }
 
         if (this.categories.contains(category)) {
-            // 최소 1개 유지 조건 추가
             if (this.categories.size() == 1) {
                 throw new UserInvalidCategorySizeException(
                         "카테고리는 최소 1개 이상 선택해야 합니다.",
                         new ArrayList<>(this.categories)
                 );
             }
-            this.categories.remove(category); // 토글 OFF
+            this.categories.remove(category); // OFF
         } else {
             if (this.categories.size() >= 3) {
                 throw new UserInvalidCategorySizeException(
@@ -138,13 +114,35 @@ public class User implements UserDetails {
         }
     }
 
-
-    //Role이 merchant인 경우 카테고리 설정하는 메서드
+    /** MERCHANT 카테고리 설정 (단일) */
     public void setMerchantCategory(Category category) {
         if (category == null) {
             throw new MerchantInvalidCategorySizeException("가게 카테고리는 반드시 1개의 카테고리를 설정해야 합니다.");
         }
+        this.categories = List.of(category); // 무조건 1개
+    }
 
-        this.categories = List.of(category); // 무조건 1개 설정
+    /* -------------------- Helper Methods for Service -------------------- */
+
+    /** MERCHANT 여부 */
+    public boolean isMerchant() {
+        return this.role == Role.MERCHANT;
+    }
+
+    /** USER 여부 */
+    public boolean isUser() {
+        return this.role == Role.USER;
+    }
+
+    /** MERCHANT 카테고리 가져오기 (없으면 null) */
+    public Category getMerchantCategory() {
+        if (!isMerchant()) return null;
+        if (this.categories == null || this.categories.isEmpty()) return null;
+        return this.categories.get(0);
+    }
+
+    /** 관심 카테고리 Set 형태로 가져오기 (USER 전용) */
+    public Set<Category> getCategorySet() {
+        return (this.categories == null) ? Set.of() : new HashSet<>(this.categories);
     }
 }

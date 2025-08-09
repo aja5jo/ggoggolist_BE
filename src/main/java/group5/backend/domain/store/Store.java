@@ -5,7 +5,6 @@ import group5.backend.domain.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity

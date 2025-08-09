@@ -10,6 +10,12 @@ import java.util.List;
 @Builder
 public class CategoryWithContentsResponse {
     private List<CategoryContent> categories;
+
+    public static CategoryWithContentsResponse of(List<CategoryContent> categories) {
+        return CategoryWithContentsResponse.builder()
+                .categories(categories == null ? List.of() : categories)
+                .build();
+    }
 }
 
 

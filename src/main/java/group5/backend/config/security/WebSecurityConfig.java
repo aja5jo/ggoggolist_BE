@@ -36,11 +36,11 @@ public class WebSecurityConfig {
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
 
-    // 정적 리소스, h2-console 보안 제외
+    // 정적 리소스 보안 제외
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring()
-                .requestMatchers("/h2-console/**", "/static/**");
+                .requestMatchers("/static/**");
     }
 
     // 보안 필터 체인 설정
