@@ -3,7 +3,9 @@ package group5.backend.repository;
 import group5.backend.domain.popup.FavoritePopup;
 import group5.backend.domain.popup.Popup;
 import group5.backend.domain.user.User;
+import group5.backend.dto.favorite.FavoriteNameItem;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -26,6 +28,11 @@ public interface FavoritePopupRepository extends JpaRepository<FavoritePopup, Lo
 
     // 존재 여부 (성능용)
     boolean existsByUserIdAndPopupId(Long userId, Long popupId);
+
+    // User ID와 Popup ID로 즐겨찾기를 찾는 메서드 추가
+    Optional<FavoritePopup> findByUserIdAndPopupId(Long userId, Long popupId);
+
+    List<FavoritePopup> findByUserId(Long userId);
 
 }
 

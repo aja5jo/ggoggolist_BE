@@ -11,12 +11,13 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 public class VisionApiClient {
-
     private final HttpClient httpClient;
     private final ObjectMapper om;
     private final GcpProperties props;
@@ -49,7 +50,6 @@ public class VisionApiClient {
             );
         }
 
-
         JsonNode root = om.readTree(res.body());
         JsonNode full = root.path("responses").path(0).path("fullTextAnnotation").path("text");
         if (!full.isMissingNode()) return full.asText();
@@ -59,5 +59,16 @@ public class VisionApiClient {
             return textAnn.get(0).path("description").asText("");
         }
         return "";
+    }
+
+    /** 줄 단위로 잘라 반환 (공백/잡음 제거 포함) */
+    public List<String> extractLines(byte[] imageBytes) throws Exception {
+        String raw = extractText(imageBytes);
+        return Arrays.stream(raw.split("\\r?\\n"))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .distinct()              // 중복 줄 제거(선택)
+                .limit(200)              // 과도한 길이 방지(선택)
+                .toList();
     }
 }

@@ -2,6 +2,7 @@ package group5.backend.exception;
 
 import group5.backend.domain.user.Category;
 import group5.backend.exception.event.HandleInvalidFilterException;
+import group5.backend.exception.favorite.FavoriteNotFoundException;
 import group5.backend.exception.gcp.ImageDownloadFailedException;
 import group5.backend.exception.gcp.MissingGcpApiKeyException;
 import group5.backend.exception.gcp.TranslationApiException;
@@ -48,10 +49,10 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, errorMessage);
     }
 
-    //회원가입 시 역할이 누락되었을 때
+    //필드 누락
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiResponse<?>> handleHttpMessageNotReadable(HttpMessageNotReadableException e) {
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, "역할(role)은 필수이며, USER 또는 MERCHANT 중 하나여야 합니다.");
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
     // 이메일 중복
@@ -98,6 +99,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<?>> handleUserNotFound(UserNotFoundException e) {
         return buildErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
     }
+    //ENUM 매칭 오류
     @ExceptionHandler(HandleInvalidFilterException.class)
     public ResponseEntity<ApiResponse<?>> handleInvalidFilter(HandleInvalidFilterException e) {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
@@ -140,7 +142,12 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(status, ex.getMessage());
     }
 
-
+    // FavoriteNotFoundException 처리
+    @ExceptionHandler(FavoriteNotFoundException.class)
+    public ResponseEntity<ApiResponse<?>> handleFavoriteNotFoundException(FavoriteNotFoundException ex) {
+        // FavoriteNotFoundException이 발생하면 404 Not Found 응답
+        return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
 
     // 그 외 모든 예외
     @ExceptionHandler(Exception.class)
