@@ -10,6 +10,7 @@ import group5.backend.dto.signup.response.SignupResponse;
 import group5.backend.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
+@Tag(name = "회원가입/로그인/아웃", description = "회원가입, 로그인 로그아웃")
 public class UserApiController {
 
     private final UserService userService;

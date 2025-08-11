@@ -11,6 +11,7 @@ import group5.backend.service.EventQueryService;
 import group5.backend.service.PopupService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +29,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
+@Tag(name = "유저: 이벤트/팝업 조회", description = "유저가 항목별 이벤트와 팝업 조회")
 public class EventQueryController {
 
     private final EventQueryService eventQueryService;

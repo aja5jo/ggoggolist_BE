@@ -8,6 +8,7 @@ import group5.backend.dto.common.store.response.StoreDetailResponse;
 import group5.backend.dto.common.store.response.StoreSummaryResponse;
 import group5.backend.response.ApiResponse;
 import group5.backend.service.StoreService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 
+@Tag(name = "소상공인: 가게 등록", description = "소상공인의 가게 CRUD")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/merchants/stores")

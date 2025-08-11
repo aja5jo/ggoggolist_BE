@@ -7,6 +7,7 @@ import group5.backend.dto.common.event.response.EventCheckResponse;
 import group5.backend.dto.common.event.response.EventCreateResponse;
 import group5.backend.response.ApiResponse;
 import group5.backend.service.EventService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/merchants/stores/events")
 @PreAuthorize("hasAuthority('MERCHANT')")
+@Tag(name = "소상공인: 이벤트 등록", description = "소상공인의 이벤트 CRUD")
 public class EventController {
 
     private final EventService eventService;

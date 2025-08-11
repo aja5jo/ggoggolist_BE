@@ -6,6 +6,7 @@ import group5.backend.dto.favorite.response.FavoriteResponse;
 import group5.backend.response.ApiResponse;
 import group5.backend.service.FavoriteService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/users")
+@Tag(name = "유저: 즐겨찾기 설정 및 해제", description = "가게, 이벤트, 팝업 즐겨찾기 설정/해제")
 public class FavoriteController {
 
     private final FavoriteService favoriteService;
