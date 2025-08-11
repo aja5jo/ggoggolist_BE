@@ -11,16 +11,16 @@ import java.util.List;
 @Data
 @Builder
 public class EventCheckResponse {
-    private Long id;
-    private Long storeId;
-    private String name;
-    private String description;
-    private String intro;
-    private String thumbnail;
-    private List<String> images;
-    private LocalDate startDate;
-    private LocalDate endDate;
-    private LocalTime startTime;
-    private LocalTime endTime;
-    private Integer likeCount;
+        private Long id;
+        private Long storeId;
+        private String name;
+        private String description;
+        private String intro;
+        private String thumbnail;
+        private List<String> images;
+        private LocalDate startDate;
+        private LocalDate endDate;
+        private LocalTime startTime;
+        private LocalTime endTime;
+        private Integer likeCount;
 }

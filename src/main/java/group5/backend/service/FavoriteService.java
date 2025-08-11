@@ -188,4 +188,3 @@ public class FavoriteService {
         return favoriteResponses;
     }
 }
-

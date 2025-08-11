@@ -1,6 +1,8 @@
-package group5.backend.dto.common.popup.request;
+package group5.backend.dto.common.popup.response;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import group5.backend.domain.user.Category;
+
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -8,9 +10,11 @@ import java.time.LocalTime;
 import java.util.List;
 
 @Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class PopupUpdateRequest {
-    private group5.backend.domain.user.Category category;
+@Builder
+public class PopupCreateResponse {
+    private Long id;
+    private Long userId;
+    private Category category;
     private String name;
     private String description;
     private String intro;
@@ -21,5 +25,4 @@ public class PopupUpdateRequest {
     private LocalTime startTime;
     private LocalTime endTime;
     private String address;
-
 }

@@ -20,9 +20,22 @@ import java.util.List;
 @Repository
 public interface EventRepository extends JpaRepository<Event, Long> {
 
-    /* ========== 기본 ========== */
-    List<Event> findByStore(Store store);
+    // 특정 Store에 등록된 모든 Event 조회
+    //List<Event> findByStore(Store store);
+
+    List<Event> findByStoreId(Long storeId);
+
+    // 특정 Store 내에서 이름이 같은 Event 조회
     Optional<Event> findByStoreAndName(Store store, String name);
+    @Query("""
+        select distinct e
+        from Event e
+        join fetch e.store s
+        left join fetch e.images
+        where s.id = :storeId
+        order by e.startDate desc, e.id desc
+        """)
+    List<Event> findByStoreIdWithStoreAndImages(@Param("storeId") Long storeId);
 
     /* ========== 카테고리 + 진행중 (inclusive) ========== */
     @EntityGraph(attributePaths = "store")
@@ -106,4 +119,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "WHERE e.startDate > :today " +
             "ORDER BY e.startDate ASC, e.id ASC")
     List<Event> findUpcomingList(@Param("today") LocalDate today);
+    // 종료일이 현재 날짜 이전인 모든 이벤트 삭제
+    void deleteByEndDateBefore(LocalDate date);
+
 }

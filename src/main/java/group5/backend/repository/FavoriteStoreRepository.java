@@ -34,5 +34,4 @@ public interface FavoriteStoreRepository extends JpaRepository<FavoriteStore, Lo
     @Query(value = "SELECT s.id, s.name FROM favorite_stores fs " +
             "JOIN stores s ON fs.store_id = s.id WHERE fs.user_id = :userId", nativeQuery = true)
     List<Object[]> findFavoriteStoresByUserId(@Param("userId") Long userId);
-
 }

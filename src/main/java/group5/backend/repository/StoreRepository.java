@@ -19,11 +19,13 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     Optional<Store> findByName(String name);
 
     // 특정 유저(merchant)가 등록한 가게 목록
-    List<Store> findByOwner(User owner);
+    //Optional<Store> findByOwner(User owner);
+    Optional<Store> findByOwnerId(Long ownerId);
 
     // ✅ [신규] 카테고리별 스토어 조회 (정렬/개수는 Pageable로 제어)
     Page<Store> findByCategory(Category category, Pageable pageable);
 
+    boolean existsByOwnerId(Long ownerId);
     // 추가: 전체 + 정렬
     List<Store> findByCategory(Category category, Sort sort);
 }

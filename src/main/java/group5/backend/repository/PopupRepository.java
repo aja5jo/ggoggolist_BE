@@ -16,9 +16,10 @@ import java.util.Optional;
 public interface PopupRepository extends JpaRepository<Popup, Long> {
 
     /* ========== 기본 ========== */
-    List<Popup> findByUser(User user);
-    Optional<Popup> findByUserAndName(User user, String name);
+    List<Popup> findByUserId(Long userId);
 
+    Optional<Popup> findByUserAndName(User user, String name);
+    void deleteByEndDateBefore(LocalDate date);
     /* ========== 카테고리 + 진행중 (inclusive) ========== */
     @EntityGraph(attributePaths = "user")
     Page<Popup> findByCategoryAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
