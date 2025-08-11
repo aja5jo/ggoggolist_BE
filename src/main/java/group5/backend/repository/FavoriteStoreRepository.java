@@ -4,6 +4,8 @@ import group5.backend.domain.store.FavoriteStore;
 import group5.backend.domain.store.Store;
 import group5.backend.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -29,6 +31,8 @@ public interface FavoriteStoreRepository extends JpaRepository<FavoriteStore, Lo
     // User ID와 Store ID로 즐겨찾기를 찾는 메서드 추가
     Optional<FavoriteStore> findByUserIdAndStoreId(Long userId, Long storeId);
 
-    List<FavoriteStore> findByUserId(Long userId);
+    @Query(value = "SELECT s.id, s.name FROM favorite_stores fs " +
+            "JOIN stores s ON fs.store_id = s.id WHERE fs.user_id = :userId", nativeQuery = true)
+    List<Object[]> findFavoriteStoresByUserId(@Param("userId") Long userId);
 
 }

@@ -132,6 +132,7 @@ public class FavoriteService {
         return FavoriteResponse.of(popup.getId(), "popup", liked, popup.getLikeCount(),popup.getName());
     }
 
+    //유저 전체 즐겨찾기 조회
     @Transactional
     public List<FavoriteResponse> getAllFavorites(User loginUser) {
         log.info("User ID: {} 의 전체 즐겨찾기 목록 조회 시작", loginUser.getId());
@@ -140,55 +141,51 @@ public class FavoriteService {
 
         // Store 즐겨찾기 조회
         log.info("Store 즐겨찾기 목록 조회 시작");
-        List<Object[]> favoriteStores = entityManager.createNativeQuery(
-                        "SELECT s.id, s.name FROM favorite_stores fs " +
-                                "JOIN stores s ON fs.store_id = s.id WHERE fs.user_id = :userId")
-                .setParameter("userId", loginUser.getId())
-                .getResultList();
+        List<Object[]> favoriteStores = favoriteStoreRepository.findFavoriteStoresByUserId(loginUser.getId());
         log.info("총 {}개의 Store 즐겨찾기 항목 조회됨", favoriteStores.size());
 
         for (Object[] result : favoriteStores) {
             Long storeId = (Long) result[0];  // 첫 번째 컬럼은 store ID
             String storeName = (String) result[1];  // 두 번째 컬럼은 store Name
-            favoriteResponses.add(FavoriteResponse.of(storeId, "store", false, 0, storeName));  // type 추가
+            Store store = storeRepository.findById(storeId).orElseThrow(() -> new RuntimeException("Store not found"));
+            boolean liked = favoriteStoreRepository.existsByUserIdAndStoreId(loginUser.getId(), storeId);  // 좋아요 여부
+            int likeCount = store.getLikeCount();  // 실제 likeCount 값 가져오기
+
+            favoriteResponses.add(FavoriteResponse.of(storeId, "store", liked, likeCount, storeName));  // DTO로 변환
         }
 
         // Event 즐겨찾기 조회
         log.info("Event 즐겨찾기 목록 조회 시작");
-        List<Object[]> favoriteEvents = entityManager.createNativeQuery(
-                        "SELECT e.id, e.name FROM favorite_events fe " +
-                                "JOIN events e ON fe.event_id = e.id WHERE fe.user_id = :userId")
-                .setParameter("userId", loginUser.getId())
-                .getResultList();
+        List<Object[]> favoriteEvents = favoriteEventRepository.findFavoriteEventsByUserId(loginUser.getId());
         log.info("총 {}개의 Event 즐겨찾기 항목 조회됨", favoriteEvents.size());
 
         for (Object[] result : favoriteEvents) {
             Long eventId = (Long) result[0];  // 첫 번째 컬럼은 event ID
             String eventName = (String) result[1];  // 두 번째 컬럼은 event Name
-            favoriteResponses.add(FavoriteResponse.of(eventId, "event", false, 0, eventName));  // type 추가
+            Event event = eventRepository.findById(eventId).orElseThrow(() -> new RuntimeException("Event not found"));
+            boolean liked = favoriteEventRepository.existsByUserIdAndEventId(loginUser.getId(), eventId);  // 좋아요 여부
+            int likeCount = event.getLikeCount();  // 실제 likeCount 값 가져오기
+
+            favoriteResponses.add(FavoriteResponse.of(eventId, "event", liked, likeCount, eventName));  // DTO로 변환
         }
 
         // Popup 즐겨찾기 조회
         log.info("Popup 즐겨찾기 목록 조회 시작");
-        List<Object[]> favoritePopups = entityManager.createNativeQuery(
-                        "SELECT p.id, p.name FROM favorite_popups fp " +
-                                "JOIN popups p ON fp.popup_id = p.id WHERE fp.user_id = :userId")
-                .setParameter("userId", loginUser.getId())
-                .getResultList();
+        List<Object[]> favoritePopups = favoritePopupRepository.findFavoritePopupsByUserId(loginUser.getId());
         log.info("총 {}개의 Popup 즐겨찾기 항목 조회됨", favoritePopups.size());
 
         for (Object[] result : favoritePopups) {
             Long popupId = (Long) result[0];  // 첫 번째 컬럼은 popup ID
             String popupName = (String) result[1];  // 두 번째 컬럼은 popup Name
-            favoriteResponses.add(FavoriteResponse.of(popupId, "popup", false, 0, popupName));  // type 추가
+            Popup popup = popupRepository.findById(popupId).orElseThrow(() -> new RuntimeException("Popup not found"));
+            boolean liked = favoritePopupRepository.existsByUserIdAndPopupId(loginUser.getId(), popupId);  // 좋아요 여부
+            int likeCount = popup.getLikeCount();  // 실제 likeCount 값 가져오기
+
+            favoriteResponses.add(FavoriteResponse.of(popupId, "popup", liked, likeCount, popupName));  // DTO로 변환
         }
 
         log.info("유저 ID: {} 의 전체 즐겨찾기 목록 조회 완료", loginUser.getId());
         return favoriteResponses;
     }
-
-
-
-
 }
 
