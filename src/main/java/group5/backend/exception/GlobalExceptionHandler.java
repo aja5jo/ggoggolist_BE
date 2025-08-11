@@ -2,6 +2,11 @@ package group5.backend.exception;
 
 import group5.backend.domain.user.Category;
 import group5.backend.exception.event.HandleInvalidFilterException;
+import group5.backend.exception.favorite.FavoriteNotFoundException;
+import group5.backend.exception.gcp.ImageDownloadFailedException;
+import group5.backend.exception.gcp.MissingGcpApiKeyException;
+import group5.backend.exception.gcp.TranslationApiException;
+import group5.backend.exception.gcp.VisionApiException;
 import group5.backend.response.ApiResponse;
 import group5.backend.exception.category.MerchantInvalidCategorySizeException;
 import group5.backend.exception.category.UserInvalidCategorySizeException;
@@ -13,8 +18,6 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -47,10 +50,10 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, errorMessage);
     }
 
-    //회원가입 시 역할이 누락되었을 때
+    //필드 누락
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiResponse<?>> handleHttpMessageNotReadable(HttpMessageNotReadableException e) {
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, "역할(role)은 필수이며, USER 또는 MERCHANT 중 하나여야 합니다.");
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
     // 이메일 중복
@@ -97,35 +100,59 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<?>> handleUserNotFound(UserNotFoundException e) {
         return buildErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
     }
+    //ENUM 매칭 오류
     @ExceptionHandler(HandleInvalidFilterException.class)
     public ResponseEntity<ApiResponse<?>> handleInvalidFilter(HandleInvalidFilterException e) {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
-    /* ---------- 401 Unauthorized (비로그인) ---------- */
-
-    @ExceptionHandler(InsufficientAuthenticationException.class)
-    public ResponseEntity<ApiResponse<?>> handleInsufficientAuthentication(InsufficientAuthenticationException e) {
-        // 인증 정보가 없거나 세션/토큰이 유효하지 않을 때
-        return buildErrorResponse(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
+    //api key 관련 예외
+    @ExceptionHandler(MissingGcpApiKeyException.class)
+    public ResponseEntity<ApiResponse<?>> handleMissingGcpApiKey(MissingGcpApiKeyException ex) {
+        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
     }
 
-    /* ---------- 403 Forbidden (권한 부족) ---------- */
+    //이미지 다운로드 관련 예외
+    @ExceptionHandler(ImageDownloadFailedException.class)
+    public ResponseEntity<ApiResponse<?>> handleImageDownloadFailed(ImageDownloadFailedException ex) {
+        // HTTP 상태 코드가 실제 실패 코드를 반영하게 하고 싶으면 ex.getStatusCode()를 그대로 사용 가능
+        HttpStatus status = HttpStatus.resolve(ex.getStatusCode());
+        if (status == null) {
+            status = HttpStatus.BAD_REQUEST; // 기본값
+        }
+        return buildErrorResponse(status, ex.getMessage());
+    }
 
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ApiResponse<?>> handleAccessDenied(AccessDeniedException e) {
-        // @PreAuthorize, 서비스단 권한 체크 실패 등
-        String msg = (e.getMessage() == null || e.getMessage().isBlank())
-                ? "접근 권한이 없습니다."
-                : e.getMessage();
-        return buildErrorResponse(HttpStatus.FORBIDDEN, msg);
+    //translation 관련 예외
+    @ExceptionHandler(TranslationApiException.class)
+    public ResponseEntity<ApiResponse<?>> handleTranslationApiException(TranslationApiException ex) {
+        HttpStatus status = HttpStatus.resolve(ex.getStatusCode());
+        if (status == null) {
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+        // 필요하면 ex.getResponseBody()를 로그로 남겨서 API 응답 본문 추적
+        return buildErrorResponse(status, ex.getMessage());
+    }
+    //vision 관련 예외
+    @ExceptionHandler(VisionApiException.class)
+    public ResponseEntity<ApiResponse<?>> handleVisionApiException(VisionApiException ex) {
+        HttpStatus status = HttpStatus.resolve(ex.getStatusCode());
+        if (status == null) {
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+        return buildErrorResponse(status, ex.getMessage());
+    }
+
+    // FavoriteNotFoundException 처리
+    @ExceptionHandler(FavoriteNotFoundException.class)
+    public ResponseEntity<ApiResponse<?>> handleFavoriteNotFoundException(FavoriteNotFoundException ex) {
+        // FavoriteNotFoundException이 발생하면 404 Not Found 응답
+        return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     // 그 외 모든 예외
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<?>> handleAllExceptions(Exception e) {
-        e.printStackTrace(); //  전체 스택 확인
-        System.err.println("[500] " + e.getClass().getName() + " : " + e.getMessage());
         return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다.");
     }
 
