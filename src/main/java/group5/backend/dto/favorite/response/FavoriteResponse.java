@@ -1,5 +1,6 @@
 package group5.backend.dto.favorite.response;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,6 +22,14 @@ public class FavoriteResponse {
                 .liked(liked)  // 동적으로 liked 값 설정
                 .likeCount(likeCount)
                 .name(name)    // 항목의 이름 설정
+                .build();
+    }
+
+    // 필요한 필드만 반환하도록 수정
+    public static FavoriteResponse of(Long id, String name) {
+        return FavoriteResponse.builder()
+                .id(id)
+                .name(name)
                 .build();
     }
 }

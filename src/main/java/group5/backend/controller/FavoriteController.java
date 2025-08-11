@@ -2,7 +2,6 @@ package group5.backend.controller;
 
 
 import group5.backend.domain.user.User;
-import group5.backend.dto.favorite.response.FavoriteNameListResponse;
 import group5.backend.dto.favorite.response.FavoriteResponse;
 import group5.backend.response.ApiResponse;
 import group5.backend.service.FavoriteService;
@@ -81,6 +80,29 @@ public class FavoriteController {
                 response
         );
 
+        return ResponseEntity.ok(apiResponse);
+    }
+    // 유저의 전체 즐겨찾기 목록 조회
+    @Secured("USER")  // USER 권한을 가진 사용자만 접근 가능
+    @GetMapping("/favorites")
+    @Operation(summary = "Get all favorites", description = "Get all the favorite stores, events, and popups of a user.")
+    public ResponseEntity<ApiResponse<List<FavoriteResponse>>> getAllFavorites(
+            @AuthenticationPrincipal User loginUser
+    ) {
+        log.info("유저 ID: {} 의 전체 즐겨찾기 목록 조회 요청", loginUser.getId());
+
+        List<FavoriteResponse> response = favoriteService.getAllFavorites(loginUser);
+
+        log.info("유저 ID: {} 의 전체 즐겨찾기 목록 조회 완료", loginUser.getId());
+
+        ApiResponse<List<FavoriteResponse>> apiResponse = new ApiResponse<>(
+                true,
+                200,  // HTTP Status OK
+                "전체 즐겨찾기 목록 조회 성공",
+                response
+        );
+
+        log.info("전체 즐겨찾기 목록 조회 응답: {}", apiResponse);
         return ResponseEntity.ok(apiResponse);
     }
 

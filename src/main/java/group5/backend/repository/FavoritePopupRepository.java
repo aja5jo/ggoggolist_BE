@@ -3,9 +3,7 @@ package group5.backend.repository;
 import group5.backend.domain.popup.FavoritePopup;
 import group5.backend.domain.popup.Popup;
 import group5.backend.domain.user.User;
-import group5.backend.dto.favorite.FavoriteNameItem;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
