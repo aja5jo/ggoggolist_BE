@@ -5,10 +5,8 @@ import group5.backend.dto.category.response.CategoryFeedItemResponse;
 import group5.backend.dto.common.event.FilterType;
 import group5.backend.dto.common.event.response.EventOverviewResponse;
 import group5.backend.dto.common.event.response.EventPageResponse;
-import group5.backend.dto.common.popup.response.PopupSummaryResponse;
 import group5.backend.response.ApiResponse;
 import group5.backend.service.EventQueryService;
-import group5.backend.service.PopupService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
@@ -26,12 +24,12 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/events")
 @RequiredArgsConstructor
 public class EventQueryController {
 
     private final EventQueryService eventQueryService;
-    private final PopupService popupService;
+
     @Operation(
             summary = "이벤트/팝업 조회 (필터별 or 전체 Overview)",
             description = """
@@ -44,7 +42,7 @@ public class EventQueryController {
             """
     )
     @Parameter(name = "filter", description = "필터 타입 (POPULAR, ONGOING, CLOSING_TODAY, UPCOMING)", required = false, example = "POPULAR")
-    @GetMapping("/events")
+    @GetMapping
     @Transactional(readOnly = true)
     public ResponseEntity<ApiResponse> getEventsOrOverview(
             @RequestParam(value = "filter", required = false) FilterType filter,
@@ -61,20 +59,6 @@ public class EventQueryController {
             EventOverviewResponse data = eventQueryService.getEventOverview(userId);
             return ResponseEntity.ok(new ApiResponse(true, 200, "전체 overview 조회 성공", data));
         }
-    }
-
-    @Operation(
-            summary = "이번 주 팝업 스테이션 조회",
-            description = "이번 주(월~일)에 진행 중인 모든 팝업 스테이션을 반환"
-    )
-
-    @GetMapping("/popups")
-    public ResponseEntity<ApiResponse<List<PopupSummaryResponse>>> getThisWeekPopups(@AuthenticationPrincipal User loginUser) {
-        Long userId = (loginUser != null) ? loginUser.getId() : null;
-        return ResponseEntity.ok(
-                new ApiResponse(true, 200, "이번 주 팝업 스테이션 조회 성공",
-                        popupService.getThisWeekPopups(userId))
-        );
     }
 }
 

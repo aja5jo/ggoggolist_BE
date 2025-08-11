@@ -26,13 +26,54 @@ public class EventService {
     private final EventRepository eventRepository;
     private final StoreRepository storeRepository;
 
-    //@Transactional(readOnly = true)
     @Transactional
-    public List<EventCheckResponse> getMyEvents(User merchant) {
-        Store store = storeRepository.findByOwnerId(merchant.getId())
+    public EventCreateResponse createEvent(User user, EventCreateRequest request) {
+        // 1. 사용자에게 연결된 Store 가져오기
+        Store store = storeRepository.findByOwner(user)
                 .orElseThrow(() -> new AccessDeniedException("등록된 가게가 없는 사용자입니다."));
 
-        List<Event> events = eventRepository.findByStoreId(store.getId());
+        // 2. 날짜 유효성 체크
+        if (request.getEndDate().isBefore(request.getStartDate())) {
+            throw new IllegalArgumentException("이벤트 시작일과 종료일을 다시 확인해주세요.");
+        }
+
+        // 3. Event 엔티티 생성
+        Event event = Event.builder()
+                .name(request.getName())
+                .description(request.getDescription())
+                .intro(request.getIntro())
+                .thumbnail(request.getThumbnail())
+                .images(request.getImages())
+                .startDate(request.getStartDate())
+                .endDate(request.getEndDate())
+                .startTime(request.getStartTime())
+                .endTime(request.getEndTime())
+                .likeCount(0)
+                .build();
+
+        Event saved = eventRepository.save(event);
+
+        return EventCreateResponse.builder()
+                .id(saved.getId())
+                .storeId(store.getId())
+                .name(saved.getName())
+                .description(request.getDescription())
+                .intro(saved.getIntro())
+                .thumbnail(saved.getThumbnail())
+                .images(saved.getImages())
+                .startDate(saved.getStartDate())
+                .endDate(saved.getEndDate())
+                .startTime(saved.getStartTime())
+                .endTime(saved.getEndTime())
+                .build();
+    }
+
+    @Transactional
+    public List<EventCheckResponse> getMyEvents(User merchant) {
+        Store store = storeRepository.findByOwner(merchant)
+                .orElseThrow(() -> new AccessDeniedException("등록된 가게가 없는 사용자입니다."));
+
+        List<Event> events = eventRepository.findByStore(store);
 
         return events.stream()
                 .map(event -> EventCheckResponse.builder()
@@ -52,45 +93,24 @@ public class EventService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
-    public EventCreateResponse createEvent(User merchant, EventCreateRequest request) {
-        Store store = storeRepository.findByOwnerId(merchant.getId())
-                .orElseThrow(() -> new AccessDeniedException("등록된 가게가 없는 사용자입니다."));
 
-        if (request.getEndDate().isBefore(request.getStartDate())) {
-            throw new IllegalArgumentException("이벤트 시작일과 종료일을 다시 확인해주세요.");
-        }
-
-        Event event = Event.builder()
-                .store(store)
-                .name(request.getName())
-                .description(request.getDescription())
-                .intro(request.getIntro())
-                .thumbnail(request.getThumbnail())
-                .images(request.getImages())
-                .startDate(request.getStartDate())
-                .endDate(request.getEndDate())
-                .startTime(request.getStartTime())
-                .endTime(request.getEndTime())
-                .likeCount(0)
-                .build();
-
-        Event saved = eventRepository.save(event);
-        return toResponse(saved);
-    }
 
     @Transactional
-    public EventCreateResponse updateEvent(User merchant, Long eventId, EventCreateRequest request) {
-        Store store = storeRepository.findByOwnerId(merchant.getId())
+    public EventCreateResponse updateEvent(User user, Long eventId, EventCreateRequest request) {
+        // 가게 조회
+        Store store = storeRepository.findByOwner(user)
                 .orElseThrow(() -> new AccessDeniedException("등록된 가게가 없습니다."));
 
+        // 이벤트 조회
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new IllegalArgumentException("이벤트를 찾을 수 없습니다."));
 
+        // 이벤트가 본인 가게에 속해 있는지 검증
         if (!event.getStore().equals(store)) {
             throw new AccessDeniedException("해당 이벤트에 대한 수정 권한이 없습니다.");
         }
 
+        // 필드 업데이트
         event.setName(request.getName());
         event.setDescription(request.getDescription());
         event.setIntro(request.getIntro());
@@ -102,12 +122,25 @@ public class EventService {
         event.setEndTime(request.getEndTime());
 
         Event updated = eventRepository.save(event);
-        return toResponse(updated);
+
+        return EventCreateResponse.builder()
+                .id(updated.getId())
+                .storeId(updated.getStore().getId())
+                .name(updated.getName())
+                .description(updated.getDescription())
+                .intro(updated.getIntro())
+                .thumbnail(updated.getThumbnail())
+                .images(updated.getImages())
+                .startDate(updated.getStartDate())
+                .endDate(updated.getEndDate())
+                .startTime(updated.getStartTime())
+                .endTime(updated.getEndTime())
+                .build();
     }
 
     @Transactional
-    public EventCreateResponse updateEvent(Long eventId, User merchant, EventUpdateRequest request) {
-        Store store = storeRepository.findByOwnerId(merchant.getId())
+    public EventCreateResponse updateEvent(Long eventId, User user, EventUpdateRequest request) {
+        Store store = storeRepository.findByOwner(user)
                 .orElseThrow(() -> new IllegalArgumentException("등록된 가게가 없습니다."));
 
         Event event = eventRepository.findById(eventId)
@@ -128,25 +161,21 @@ public class EventService {
         if (request.getEndTime() != null) event.setEndTime(request.getEndTime());
 
         Event updated = eventRepository.save(event);
-        return toResponse(updated);
-    }
 
-    private EventCreateResponse toResponse(Event e) {
         return EventCreateResponse.builder()
-                .id(e.getId())
-                .storeId(e.getStore().getId())
-                .name(e.getName())
-                .description(e.getDescription())
-                .intro(e.getIntro())
-                .thumbnail(e.getThumbnail())
-                .images(e.getImages())
-                .startDate(e.getStartDate())
-                .endDate(e.getEndDate())
-                .startTime(e.getStartTime())
-                .endTime(e.getEndTime())
+                .id(updated.getId())
+                .storeId(updated.getStore().getId())
+                .name(updated.getName())
+                .description(updated.getDescription())
+                .intro(updated.getIntro())
+                .thumbnail(updated.getThumbnail())
+                .images(updated.getImages())
+                .startDate(updated.getStartDate())
+                .endDate(updated.getEndDate())
+                .startTime(updated.getStartTime())
+                .endTime(updated.getEndTime())
                 .build();
     }
-
 
 
 

@@ -14,10 +14,6 @@ import group5.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.context.annotation.Profile;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,7 +34,6 @@ public class DataInitializer implements ApplicationRunner {
     private final StoreRepository storeRepository;
     private final EventRepository eventRepository;
     private final PopupRepository popupRepository;
-    private final PasswordEncoder passwordEncoder;
 
     @PersistenceContext
     private EntityManager em;
@@ -54,7 +49,7 @@ public class DataInitializer implements ApplicationRunner {
         // USER 1명
         User user = User.builder()
                 .email("user@test.com")
-                .password(passwordEncoder.encode("user1234"))
+                .password("user1234")
                 .role(Role.USER)
                 .build();
         userRepository.save(user);
@@ -65,7 +60,7 @@ public class DataInitializer implements ApplicationRunner {
         for (int i = 0; i < 50; i++) {
             User merchant = User.builder()
                     .email("merchant" + i + "@test.com")
-                    .password(passwordEncoder.encode("123456"))
+                    .password("1234")
                     .role(Role.MERCHANT)
                     .build();
             userRepository.save(merchant);
@@ -126,13 +121,10 @@ public class DataInitializer implements ApplicationRunner {
                 em.clear();
             }
         }
-        List<User> merchants = userRepository.findAll().stream()
-                .filter(u -> u.getRole() == Role.MERCHANT)
-                .limit(30) // 앞에서 30명만
-                .toList();
+
         // 팝업 30개 (카테고리+제너레이터 적용)
         for (int k = 0; k < 30; k++) {
-            User owner = merchants.get(k);
+            User owner = getRandomMerchant();
 
             // ✅ 카테고리 배정
             Category cat = categories[k % categories.length];

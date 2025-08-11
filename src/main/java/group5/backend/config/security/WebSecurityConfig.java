@@ -10,7 +10,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -27,7 +26,6 @@ import jakarta.servlet.http.HttpServletResponse;
  * @Secured: 지정한 역할(예: ROLE_ADMIN)이 있어야 메서드를 실행할 수 있도록 제한하는 애노테이션
  * ex) @Secured("ROLE_MERCHANT")
  * */
-@EnableMethodSecurity(prePostEnabled = true)
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -50,7 +48,6 @@ public class WebSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(csrf -> csrf.disable()) // REST API에서는 CSRF 비활성화
-                .securityContext(sc -> sc.requireExplicitSave(false))
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(customAuthenticationEntryPoint)
                         .accessDeniedHandler(customAccessDeniedHandler)

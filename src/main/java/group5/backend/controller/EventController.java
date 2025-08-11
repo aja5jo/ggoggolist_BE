@@ -1,5 +1,6 @@
 package group5.backend.controller;
 
+import group5.backend.domain.user.Role;
 import group5.backend.domain.user.User;
 import group5.backend.dto.common.event.request.EventCreateRequest;
 import group5.backend.dto.common.event.request.EventUpdateRequest;
@@ -10,8 +11,7 @@ import group5.backend.service.EventService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +20,6 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/merchants/stores/events")
-@PreAuthorize("hasAuthority('MERCHANT')")
 public class EventController {
 
     private final EventService eventService;
@@ -30,19 +29,29 @@ public class EventController {
             @Valid @RequestBody EventCreateRequest request,
             @AuthenticationPrincipal User user
     ) {
+        // MERCHANT 권한 확인
+        if (user.getRole() != Role.MERCHANT) {
+            throw new AccessDeniedException("가게 등록 권한이 없습니다.");
+        }
+
         EventCreateResponse response = eventService.createEvent(user, request);
-        return ResponseEntity.ok(new ApiResponse<>(true, 200, "이벤트 등록 성공", response));
+        return ResponseEntity.ok(
+                new ApiResponse<>(true, 200, "이벤트 등록 성공", response)
+        );
     }
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<EventCheckResponse>>> getMyEvents(
             @AuthenticationPrincipal User user
     ) {
-        if (user == null) {
-            throw new InsufficientAuthenticationException("인증 정보가 없습니다."); // → 401
+        if (user.getRole() != Role.MERCHANT) {
+            throw new AccessDeniedException("가게 이벤트 조회 권한이 없습니다.");
         }
+
         List<EventCheckResponse> responses = eventService.getMyEvents(user);
-        return ResponseEntity.ok(new ApiResponse<>(true, 200, "이벤트 조회 성공", responses));
+        return ResponseEntity.ok(
+                new ApiResponse<>(true, 200, "이벤트 조회 성공", responses)
+        );
     }
 
     @PutMapping("/{eventId}")
@@ -51,8 +60,15 @@ public class EventController {
             @Valid @RequestBody EventCreateRequest request,
             @AuthenticationPrincipal User user
     ) {
+        // MERCHANT 권한 확인
+        if (user.getRole() != Role.MERCHANT) {
+            throw new AccessDeniedException("이벤트 수정 권한이 없습니다.");
+        }
+
         EventCreateResponse response = eventService.updateEvent(user, eventId, request);
-        return ResponseEntity.ok(new ApiResponse<>(true, 200, "이벤트 전체 수정 성공", response));
+        return ResponseEntity.ok(
+                new ApiResponse<>(true, 200, "이벤트 전체 수정 성공", response)
+        );
     }
 
     @PatchMapping("/{eventId}")
@@ -61,6 +77,10 @@ public class EventController {
             @Valid @RequestBody EventUpdateRequest request,
             @AuthenticationPrincipal User user
     ) {
+        if (user.getRole() != Role.MERCHANT) {
+            throw new AccessDeniedException("이벤트 수정 권한이 없습니다.");
+        }
+
         EventCreateResponse response = eventService.updateEvent(eventId, user, request);
         return ResponseEntity.ok(new ApiResponse<>(true, 200, "이벤트 부분 수정 성공", response));
     }
