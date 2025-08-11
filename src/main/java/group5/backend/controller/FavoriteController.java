@@ -1,8 +1,6 @@
 package group5.backend.controller;
-
-
 import group5.backend.domain.user.User;
-import group5.backend.dto.favorite.response.FavoriteResponse;
+import group5.backend.dto.response.FavoriteResponse;
 import group5.backend.response.ApiResponse;
 import group5.backend.service.FavoriteService;
 import io.swagger.v3.oas.annotations.Operation;

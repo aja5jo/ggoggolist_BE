@@ -8,7 +8,7 @@ import group5.backend.domain.popup.Popup;
 import group5.backend.domain.store.FavoriteStore;
 import group5.backend.domain.store.Store;
 import group5.backend.domain.user.User;
-import group5.backend.dto.favorite.response.FavoriteResponse;
+import group5.backend.dto.response.FavoriteResponse;
 import group5.backend.exception.favorite.FavoriteNotFoundException;
 import group5.backend.repository.*;
 

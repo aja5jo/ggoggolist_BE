@@ -1,7 +1,6 @@
-package group5.backend.dto.favorite.response;
+package group5.backend.dto.response;
 
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
