@@ -21,10 +21,21 @@ import java.util.List;
 public interface EventRepository extends JpaRepository<Event, Long> {
 
     // 특정 Store에 등록된 모든 Event 조회
-    List<Event> findByStore(Store store);
+    //List<Event> findByStore(Store store);
+
+    List<Event> findByStoreId(Long storeId);
 
     // 특정 Store 내에서 이름이 같은 Event 조회
     Optional<Event> findByStoreAndName(Store store, String name);
+    @Query("""
+        select distinct e
+        from Event e
+        join fetch e.store s
+        left join fetch e.images
+        where s.id = :storeId
+        order by e.startDate desc, e.id desc
+        """)
+    List<Event> findByStoreIdWithStoreAndImages(@Param("storeId") Long storeId);
 
     /* ========== 카테고리 + 진행중 (inclusive) ========== */
     @EntityGraph(attributePaths = "store")

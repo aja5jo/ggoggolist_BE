@@ -13,6 +13,8 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -22,6 +24,7 @@ import java.util.List;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    /* ---------- 400 Bad Request ---------- */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<?>> handleValidationException(MethodArgumentNotValidException e) {
         String errorMessage = e.getBindingResult()
@@ -99,9 +102,30 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
+    /* ---------- 401 Unauthorized (비로그인) ---------- */
+
+    @ExceptionHandler(InsufficientAuthenticationException.class)
+    public ResponseEntity<ApiResponse<?>> handleInsufficientAuthentication(InsufficientAuthenticationException e) {
+        // 인증 정보가 없거나 세션/토큰이 유효하지 않을 때
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
+    }
+
+    /* ---------- 403 Forbidden (권한 부족) ---------- */
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponse<?>> handleAccessDenied(AccessDeniedException e) {
+        // @PreAuthorize, 서비스단 권한 체크 실패 등
+        String msg = (e.getMessage() == null || e.getMessage().isBlank())
+                ? "접근 권한이 없습니다."
+                : e.getMessage();
+        return buildErrorResponse(HttpStatus.FORBIDDEN, msg);
+    }
+
     // 그 외 모든 예외
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<?>> handleAllExceptions(Exception e) {
+        e.printStackTrace(); //  전체 스택 확인
+        System.err.println("[500] " + e.getClass().getName() + " : " + e.getMessage());
         return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다.");
     }
 
