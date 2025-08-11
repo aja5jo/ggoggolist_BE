@@ -22,4 +22,6 @@ data:
 openai:
   api:
     key: ${OPENAI_API_KEY}
-
+gcp:
+  api:
+    key: ${GCP_API_KEY}

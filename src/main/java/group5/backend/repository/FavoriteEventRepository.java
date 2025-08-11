@@ -4,6 +4,8 @@ import group5.backend.domain.event.FavoriteEvent;
 import group5.backend.domain.event.Event;
 import group5.backend.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -25,4 +27,12 @@ public interface FavoriteEventRepository extends JpaRepository<FavoriteEvent, Lo
     void deleteByUserAndEvent(User user, Event event);
 
     boolean existsByUserIdAndEventId(Long userId, Long eventId);
+
+    // User ID와 Event ID로 즐겨찾기를 찾는 메서드 추가
+    Optional<FavoriteEvent> findByUserIdAndEventId(Long userId, Long eventId);
+
+    @Query(value = "SELECT e.id, e.name FROM favorite_events fe " +
+            "JOIN events e ON fe.event_id = e.id WHERE fe.user_id = :userId", nativeQuery = true)
+    List<Object[]> findFavoriteEventsByUserId(@Param("userId") Long userId);
+
 }

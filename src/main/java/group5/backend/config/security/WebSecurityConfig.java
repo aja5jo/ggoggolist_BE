@@ -63,9 +63,10 @@ public class WebSecurityConfig {
                                 "/swagger-ui.html"
                         ).permitAll()
                         .requestMatchers("/api/signup", "/api/login").permitAll()
-                        .requestMatchers("/api/users/**").hasAuthority("USER")  // 수정됨
-                        .requestMatchers("/api/merchants/**").hasAuthority("MERCHANT")  // 수정됨
+                        .requestMatchers("/api/users/**").hasAuthority("USER")
+                        .requestMatchers("/api/merchants/**").hasAuthority("MERCHANT")
                         .requestMatchers("/api/**").permitAll()
+                        .requestMatchers("/images/**").permitAll()  // 이미지 리소스에 대한 접근을 인증 없이 허용
                         .anyRequest().authenticated()
                 )
 
