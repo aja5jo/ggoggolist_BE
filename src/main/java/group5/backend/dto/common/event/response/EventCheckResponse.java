@@ -22,6 +22,5 @@ public class EventCheckResponse {
         private LocalDate endDate;
         private LocalTime startTime;
         private LocalTime endTime;
-        private Boolean isPopup;
         private Integer likeCount;
 }
