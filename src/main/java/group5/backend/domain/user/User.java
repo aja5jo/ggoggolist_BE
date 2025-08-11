@@ -14,12 +14,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.*;
 
+
+@Entity
 @Table(name = "users")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Data
-@Entity
 public class User implements UserDetails {
 
     @Id

@@ -16,11 +16,12 @@ spring:
         dialect: org.hibernate.dialect.MySQL8Dialect
         format_sql: true
         show_sql: true
-    open-in-view: false
-
+    open-in-view: true
 data:
   init: true
-
+openai:
+  api:
+    key: ${OPENAI_API_KEY}
 gcp:
   api:
     key: ${GCP_API_KEY}
