@@ -20,3 +20,7 @@ spring:
 
 data:
   init: true
+
+gcp:
+  api:
+    key: ${GCP_API_KEY}

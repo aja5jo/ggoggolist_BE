@@ -5,36 +5,22 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-
 import java.util.List;
 
-@Builder
+
 @Data
-public class EventDetailResponse {
-    private Integer id;
+@Builder
+public class EventCheckResponse {
+    private Long id;
+    private Long storeId;
     private String name;
     private String description;
     private String intro;
     private String thumbnail;
     private List<String> images;
-
     private LocalDate startDate;
     private LocalDate endDate;
     private LocalTime startTime;
     private LocalTime endTime;
-
-    private Boolean isPopup;
     private Integer likeCount;
-    private boolean liked;
-    private StoreSimpleDto store;
-
-    @Builder
-    @Data
-    public static class StoreSimpleDto {
-        private Long storeId;
-        private String storeName;
-        private String address;
-        private String phone;
-        private String storeImageUrl;
-    }
 }
