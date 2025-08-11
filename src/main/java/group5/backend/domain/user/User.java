@@ -55,7 +55,7 @@ public class User implements UserDetails {
     private List<FavoriteEvent> favoriteEvents;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<FavoritePopup> favoritePopups; // ✅ 새로 추가
+    private List<FavoritePopup> favoritePopups;
 
     @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private Store store;

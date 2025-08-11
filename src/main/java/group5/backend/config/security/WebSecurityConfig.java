@@ -66,6 +66,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/users/**").hasAuthority("USER")  // 수정됨
                         .requestMatchers("/api/merchants/**").hasAuthority("MERCHANT")  // 수정됨
                         .requestMatchers("/api/**").permitAll()
+                        .requestMatchers("/images/**").permitAll()  // 이미지 리소스에 대한 접근을 인증 없이 허용
                         .anyRequest().authenticated()
                 )
 

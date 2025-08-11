@@ -80,7 +80,7 @@ public class EventService {
     }
 
     @Transactional
-    public EventCreateResponse updateEvent(User merchant, Long eventId, EventCreateRequest request) {
+    public EventCreateResponse updateEventPut(User merchant, Long eventId, EventCreateRequest request) {
         Store store = storeRepository.findByOwnerId(merchant.getId())
                 .orElseThrow(() -> new AccessDeniedException("등록된 가게가 없습니다."));
 
@@ -106,7 +106,7 @@ public class EventService {
     }
 
     @Transactional
-    public EventCreateResponse updateEvent(Long eventId, User merchant, EventUpdateRequest request) {
+    public EventCreateResponse updateEventPatch(User merchant, Long eventId,  EventUpdateRequest request) {
         Store store = storeRepository.findByOwnerId(merchant.getId())
                 .orElseThrow(() -> new IllegalArgumentException("등록된 가게가 없습니다."));
 
