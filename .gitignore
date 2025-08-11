@@ -37,3 +37,8 @@ out/
 .vscode/
 
 .env
+
+# Ignore all images in static/images folder
+/src/main/resources/static/images/*.jpg
+/src/main/resources/static/images/*.jpeg
+/src/main/resources/static/images/*.png

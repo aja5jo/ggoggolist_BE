@@ -4,6 +4,8 @@ import group5.backend.domain.popup.FavoritePopup;
 import group5.backend.domain.popup.Popup;
 import group5.backend.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -26,6 +28,13 @@ public interface FavoritePopupRepository extends JpaRepository<FavoritePopup, Lo
 
     // 존재 여부 (성능용)
     boolean existsByUserIdAndPopupId(Long userId, Long popupId);
+
+    // User ID와 Popup ID로 즐겨찾기를 찾는 메서드 추가
+    Optional<FavoritePopup> findByUserIdAndPopupId(Long userId, Long popupId);
+
+    @Query(value = "SELECT p.id, p.name FROM favorite_popups fp " +
+            "JOIN popups p ON fp.popup_id = p.id WHERE fp.user_id = :userId", nativeQuery = true)
+    List<Object[]> findFavoritePopupsByUserId(@Param("userId") Long userId);
 
 }
 
