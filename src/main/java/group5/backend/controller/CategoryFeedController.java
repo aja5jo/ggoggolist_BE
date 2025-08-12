@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/categories")
 @RequiredArgsConstructor
-@Tag(name = "유저/소상공인: 카테고리 조회", description = "가게, 이벤트, 팝업 항목별로 조회")
+@Tag(name = "카테고리 조회", description = "가게, 이벤트, 팝업 항목별로 조회")
 public class CategoryFeedController {
 
     private final CategoryFeedService categoryFeedService;
