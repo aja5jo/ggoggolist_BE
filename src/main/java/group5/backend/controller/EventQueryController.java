@@ -29,7 +29,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-@Tag(name = "유저: 이벤트/팝업 조회", description = "유저가 항목별 이벤트와 팝업 조회")
+@Tag(name = "유저/소상공인: 이벤트/팝업 조회", description = "유저가 항목별 이벤트와 팝업 조회")
 public class EventQueryController {
 
     private final EventQueryService eventQueryService;
