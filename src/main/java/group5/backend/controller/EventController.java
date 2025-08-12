@@ -72,4 +72,15 @@ public class EventController {
         EventCreateResponse response = eventService.updateEventPatch(user,eventId, request);
         return ResponseEntity.ok(new ApiResponse<>(true, 200, "이벤트 부분 수정 성공", response));
     }
+
+    @Operation(summary = "이벤트 삭제", description = "내 가게의 이벤트를 삭제합니다.")
+    @DeleteMapping("/{eventId}")
+    public ResponseEntity<ApiResponse<Void>> deleteEvent(
+            @Parameter(description = "삭제할 이벤트 ID") @PathVariable Long eventId,
+            @AuthenticationPrincipal User user
+    ) {
+        eventService.deleteEvent(user, eventId);
+        return ResponseEntity.ok(new ApiResponse<>(true, 200, "이벤트 삭제 성공", null));
+    }
+
 }

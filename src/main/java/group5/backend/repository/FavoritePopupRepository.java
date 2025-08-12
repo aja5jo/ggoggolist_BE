@@ -23,6 +23,8 @@ public interface FavoritePopupRepository extends JpaRepository<FavoritePopup, Lo
     // 유저가 이미 즐겨찾기 했는지 여부
     Optional<FavoritePopup> findByUserAndPopup(User user, Popup popup);
 
+    long deleteByPopup_Id(Long popupId);
+
     // 토글 삭제용
     void deleteByUserAndPopup(User user, Popup popup);
 

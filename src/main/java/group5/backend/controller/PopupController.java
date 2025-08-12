@@ -69,4 +69,14 @@ public class PopupController {
         PopupCreateResponse res = popupService.updatePopupPatch(user, popupId, request);
         return ResponseEntity.ok(new ApiResponse<>(true, 200, "팝업 부분 수정 성공", res));
     }
+
+    @Operation(summary = "팝업 삭제", description = "내가 등록한 팝업을 삭제합니다.")
+    @DeleteMapping("/{popupId}")
+    public ResponseEntity<ApiResponse<Void>> delete(
+            @Parameter(description = "삭제할 팝업 ID") @PathVariable Long popupId,
+            @AuthenticationPrincipal User user
+    ) {
+        popupService.deletePopup(user, popupId);
+        return ResponseEntity.ok(new ApiResponse<>(true, 200, "팝업 삭제 성공", null));
+    }
 }
