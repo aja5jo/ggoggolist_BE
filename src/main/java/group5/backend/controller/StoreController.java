@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 
-@Tag(name = "소상공인: 가게 ", description = "소상공인의 가게 CRUD")
+@Tag(name = "소상공인: 가게 관리 ", description = "소상공인의 가게 CRUD")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/merchants/stores")
