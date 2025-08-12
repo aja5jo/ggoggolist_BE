@@ -1,4 +1,4 @@
-package group5.backend.service;
+package group5.backend.service.imagetranslate;
 
 import group5.backend.domain.lang.SupportedLanguage;
 import group5.backend.dto.translate.response.ImageTranslateResponse;

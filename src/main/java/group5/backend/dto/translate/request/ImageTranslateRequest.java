@@ -12,4 +12,7 @@ public class ImageTranslateRequest {
 
     @Schema(description = "목표 언어 (enum 이름: KOREAN/ENGLISH/JAPANESE/…)")
     private SupportedLanguage targetLang;
+
+    @Schema(description = "번역 모드 (AUTO: 자동 판별, MENU: 메뉴판 강제, IMAGE: 일반 강제)")
+    private TranslateMode forceMode = TranslateMode.AUTO;
 }

@@ -1,4 +1,4 @@
-package group5.backend.service;
+package group5.backend.service.imagetranslate;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import group5.backend.config.gcp.GcpProperties;

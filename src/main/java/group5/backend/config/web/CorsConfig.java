@@ -1,6 +1,6 @@
 package group5.backend.config.web;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -10,19 +10,18 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 @Configuration
+@EnableConfigurationProperties(CorsProperties.class)
 public class CorsConfig {
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource(
-            @Value("${app.cors.allowed-origins}") List<String> allowedOrigins
-    ) {
+    public CorsConfigurationSource corsConfigurationSource(CorsProperties props) {
         CorsConfiguration cfg = new CorsConfiguration();
-        // yml에서 넘어온 목록을 그대로 사용
-        cfg.setAllowedOriginPatterns(allowedOrigins);
+        List<String> origins = props.getAllowedOrigins(); // ✅ YAML 리스트가 여기로 바인딩
+        cfg.setAllowedOriginPatterns(origins);
         cfg.setAllowedMethods(List.of("GET","POST","PUT","DELETE","PATCH","OPTIONS"));
         cfg.setAllowedHeaders(List.of("*"));
         cfg.setExposedHeaders(List.of("Set-Cookie"));
-        cfg.setAllowCredentials(true);   // 세션 쿠키 전송 허용
+        cfg.setAllowCredentials(true);
         cfg.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -30,4 +29,5 @@ public class CorsConfig {
         return source;
     }
 }
+
 
