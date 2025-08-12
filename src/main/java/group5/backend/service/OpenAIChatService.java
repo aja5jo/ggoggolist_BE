@@ -1,4 +1,4 @@
-/*package group5.backend.service;
+package group5.backend.service;
 
 import com.theokanning.openai.completion.chat.ChatCompletionRequest;
 import com.theokanning.openai.completion.chat.ChatCompletionResult;
@@ -45,4 +45,4 @@ public class OpenAIChatService {
     }
 
 
-}*/
+}

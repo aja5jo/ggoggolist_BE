@@ -1,4 +1,4 @@
-/*package group5.backend.controller;
+package group5.backend.controller;
 
 import group5.backend.dto.chat.ChatRequest;
 import group5.backend.dto.chat.ChatResponse;
@@ -22,4 +22,4 @@ public class OpenAIController {
         return ResponseEntity.ok(new ChatResponse(response));
     }
 
-}*/
+}
