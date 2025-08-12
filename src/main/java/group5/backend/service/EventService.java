@@ -8,6 +8,7 @@ import group5.backend.dto.common.event.request.EventUpdateRequest;
 import group5.backend.dto.common.event.response.EventCheckResponse;
 import group5.backend.dto.common.event.response.EventCreateResponse;
 import group5.backend.repository.EventRepository;
+import group5.backend.repository.FavoriteEventRepository;
 import group5.backend.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
@@ -25,8 +26,8 @@ public class EventService {
 
     private final EventRepository eventRepository;
     private final StoreRepository storeRepository;
+    private final FavoriteEventRepository favoriteEventRepository;
 
-    //@Transactional(readOnly = true)
     @Transactional
     public List<EventCheckResponse> getMyEvents(User merchant) {
         Store store = storeRepository.findByOwnerId(merchant.getId())
@@ -129,6 +130,23 @@ public class EventService {
 
         Event updated = eventRepository.save(event);
         return toResponse(updated);
+    }
+
+    @Transactional
+    public void deleteEvent(User merchant, Long eventId) {
+        Store store = storeRepository.findByOwnerId(merchant.getId())
+                .orElseThrow(() -> new AccessDeniedException("등록된 가게가 없습니다."));
+
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NoSuchElementException("이벤트를 찾을 수 없습니다."));
+
+        if (!Objects.equals(event.getStore().getId(), store.getId())) {
+            throw new AccessDeniedException("본인 이벤트만 삭제할 수 있습니다.");
+        }
+
+        // 즐겨찾기 등 FK가 걸려 있으면 선삭제 필요
+        favoriteEventRepository.deleteByEvent_Id(eventId);
+        eventRepository.delete(event);
     }
 
     private EventCreateResponse toResponse(Event e) {

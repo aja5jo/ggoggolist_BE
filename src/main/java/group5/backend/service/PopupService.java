@@ -23,6 +23,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -146,6 +147,18 @@ public class PopupService {
                 .build();
     }
 
+    @Transactional
+    public void deletePopup(User merchant, Long popupId) {
+        Popup popup = popupRepository.findById(popupId)
+                .orElseThrow(() -> new NoSuchElementException("팝업을 찾을 수 없습니다."));
+
+        if (!Objects.equals(popup.getUser().getId(), merchant.getId())) {
+            throw new AccessDeniedException("본인 팝업만 삭제할 수 있습니다.");
+        }
+
+        favoritePopupRepository.deleteByPopup_Id(popupId);
+        popupRepository.delete(popup);
+    }
 
     @Transactional
     public List<CategoryFeedItemResponse> getThisWeekPopups(Long userId) {
@@ -175,6 +188,10 @@ public class PopupService {
                 popup.getEndDate()
         );
     }
+
+
 }
+
+
 
 
