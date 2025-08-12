@@ -24,7 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/merchants/popups")
 @PreAuthorize("hasAuthority('MERCHANT')")
-@Tag(name = "소상공인: 팝업 등록", description = "소상공인의 팝업 CRUD")
+@Tag(name = "소상공인: 팝업 ", description = "소상공인의 팝업 CRUD")
 public class PopupController {
 
     private final PopupService popupService;

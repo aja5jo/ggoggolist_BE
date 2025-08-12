@@ -24,7 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/merchants/stores/events")
 @PreAuthorize("hasAuthority('MERCHANT')")
-@Tag(name = "소상공인: 이벤트 등록", description = "소상공인의 이벤트 CRUD")
+@Tag(name = "소상공인: 이벤트 ", description = "소상공인의 이벤트 CRUD")
 public class EventController {
 
     private final EventService eventService;
