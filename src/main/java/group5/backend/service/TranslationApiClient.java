@@ -1,9 +1,11 @@
 package group5.backend.service;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import group5.backend.config.gcp.GcpProperties;
 import group5.backend.exception.gcp.TranslationApiException;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.stereotype.Component;
 
 import java.net.URI;
@@ -114,4 +116,3 @@ public class TranslationApiClient {
         return results;
     }
 }
-
