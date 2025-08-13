@@ -12,26 +12,27 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class MenuBoardTranslateService {
 
-    // --- 규칙/사전 ---
-
-    // 한국 가격 패턴(한 줄 버전)
+    // 가격(한 줄 버전)
     private static final Pattern PRICE = Pattern.compile("(?:\\d{1,3}(?:,\\d{3})+|\\d{4,6}|\\d+(?:\\.\\d+)?\\s?만|\\d+\\s?만\\s?\\d{1,4}\\s?천?)\\s?원?");
-
-    // 수량·옵션
-    private static final Pattern COUNT_UNIT = Pattern.compile("(\\d+\\s?(인|인분|개|잔|병|캔|pcs|피스|그릇|접시))");
+    // 수량/옵션
+    private static final Pattern COUNT_UNIT = Pattern.compile("(\\d+\\s?(인|인분|개|잔|병|캔|pcs?|피스|그릇|접시|pc))", Pattern.CASE_INSENSITIVE);
     private static final Pattern PAREN_OPT  = Pattern.compile("\\(([^)]+)\\)");
 
     private static final Set<String> OPTION_HINTS = Set.of(
             "곱빼기","대","소","라지","레귤러","추가","면추가","밥추가","세트","여름한정","한정","핫","아이스"
     );
 
+    // 섹션 헤더(한/영 혼용)
     private static final Set<String> SECTION_HINTS = Set.of(
             "대표메뉴","한그릇메뉴","세트메뉴","점심특선","추천","인기",
             "추가","면추가","공기밥","사이드","토핑","주류","음료","디저트",
-            "포장","포장가능","테이크아웃","모든 메뉴 포장 가능"
+            "포장","포장가능","테이크아웃","모든 메뉴 포장 가능",
+            "SUSHI","SASHIMI","DRINK","DRINKS","BEVERAGE","BEVERAGES",
+            "SET","SET A","SET B","SET C","SET D","A SET","B SET","C SET","D SET",
+            "LUNCH SET","DINNER SET","COMBO","COURSE"
     );
 
-    // OCR 흔한 오인식 교정(필요 시 계속 추가)
+    // OCR 흔한 오인식 교정(필요 시 확장)
     private static final Map<String,String> CONFUSABLES = Map.of(
             "Λ","A","Η","H","Β","B","Ο","O","Ι","I","С","C","Т","T"
     );
@@ -44,15 +45,12 @@ public class MenuBoardTranslateService {
 
     public List<MenuItem> translateMenuBoard(byte[] imageBytes, SupportedLanguage targetLang) throws Exception {
         List<String> lines = vision.extractLines(imageBytes);
-        if (lines.isEmpty()) {
-            return List.of();
-        }
+        if (lines.isEmpty()) return List.of();
 
-        List<RawItem> rawItems = parseLinesToItems(lines);     // 섹션/옵션/가격 정리
-        List<String> names = new ArrayList<>();
-        for (RawItem it : rawItems) {
-            names.add(it.menuName);
-        }
+        List<RawItem> rawItems = parseLinesToItems(lines);
+
+        List<String> names = new ArrayList<>(rawItems.size());
+        for (RawItem it : rawItems) names.add(it.menuName);
 
         List<String> translated = translate.translateBatch(names, targetLang.code());
 
@@ -72,7 +70,7 @@ public class MenuBoardTranslateService {
         return out;
     }
 
-    // --- 파싱 파이프라인 ---
+    // ---------------- parsing ----------------
 
     private List<RawItem> parseLinesToItems(List<String> rawLines) {
         List<RawItem> items = new ArrayList<>();
@@ -91,16 +89,16 @@ public class MenuBoardTranslateService {
             // 노이즈 컷
             if (isNoise(line)) continue;
 
-            // 메뉴-가격(동일 라인)
+            // 같은 줄 가격
             String price = findPrice(line);
             String name = price.isEmpty() ? line : line.replace(price, "").trim();
 
-            // 다음 줄에 가격만 있는 경우 흡수
+            // 다음 줄 가격만 있으면 흡수
             if (price.isEmpty() && i + 1 < rawLines.size()) {
                 String next = clean(rawLines.get(i + 1));
                 if (looksLikePriceOnly(next)) {
                     price = findPrice(next);
-                    i++; // 다음 줄 소비
+                    i++; // 소비
                 }
             }
 
@@ -108,14 +106,13 @@ public class MenuBoardTranslateService {
             String option = extractOptionAgg(name);
             name = removeOptionsFromName(name);
 
-            // 너무 짧은 노이즈 컷
             if (name.length() < 2) continue;
 
             String normPrice = normalizePrice(price);
             items.add(new RawItem(currentSection, name, normPrice, option));
         }
 
-        // 중복·변형 간단 통합(동일 이름 연속 등장 시 마지막 가격 우선)
+        // 연속 중복 합치기(가격 최신값 우선)
         List<RawItem> merged = new ArrayList<>();
         String prevName = "";
         for (RawItem it : items) {
@@ -132,21 +129,20 @@ public class MenuBoardTranslateService {
         return merged;
     }
 
-    // --- helpers ---
+    // ---------------- helpers ----------------
 
     private String clean(String s) {
         String t = s == null ? "" : s.trim();
         t = fixConfusables(t);
         t = fixCommonErrors(t);
-        t = t.replaceAll("[.·•]{2,}", " ");     // 점선 리더 제거
+        t = t.replaceAll("[.·•]{2,}", " ");     // 점선 제거
         t = t.replaceAll("\\s+", " ").trim();
         return t;
     }
 
     private boolean isSectionHeader(String s) {
-        for (String h : SECTION_HINTS) {
-            if (s.contains(h)) return true;
-        }
+        String up = s.toUpperCase();
+        for (String h : SECTION_HINTS) if (up.contains(h)) return true;
         return false;
     }
 
@@ -155,8 +151,8 @@ public class MenuBoardTranslateService {
         if (core.isBlank()) return true;            // 기호뿐
         if (core.length() <= 1) return true;        // 한 글자
         if (s.matches("^[A-Za-z]$")) return true;   // 단일 영문
-        if (s.matches("^\\(?\\)?$")) return true;   // () 같은 빈 괄호
-        if (s.matches("^\\d{1,2}원$")) return true; // 2자리 이하 금액 노이즈
+        if (s.matches("^\\(?\\)?$")) return true;   // () 만
+        if (s.matches("^\\d{1,2}원$")) return true; // 2자리 이하는 노이즈
         return false;
     }
 
@@ -220,7 +216,7 @@ public class MenuBoardTranslateService {
         if (!digits.isBlank()) {
             try {
                 long v = Long.parseLong(digits);
-                if (v < 100) return ""; // 201원 같은 노이즈 컷(필요 시 조정)
+                if (v < 100) return ""; // 201원 같은 노이즈 컷
                 return formatWon(v);
             } catch (NumberFormatException ignore) { }
         }
@@ -248,7 +244,7 @@ public class MenuBoardTranslateService {
         return out;
     }
 
-    // 내부 전용 구조체
+    // 내부 구조체
     private static class RawItem {
         final String section;
         final String menuName;
