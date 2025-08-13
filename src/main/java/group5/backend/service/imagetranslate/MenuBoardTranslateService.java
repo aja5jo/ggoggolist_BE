@@ -1,12 +1,18 @@
 package group5.backend.service.imagetranslate;
+
 import group5.backend.domain.lang.SupportedLanguage;
 import group5.backend.dto.translate.menu.MenuItem;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -18,21 +24,11 @@ public class MenuBoardTranslateService {
     private static final Pattern COUNT_UNIT = Pattern.compile("(\\d+\\s?(인|인분|개|잔|병|캔|pcs?|피스|그릇|접시|pc))", Pattern.CASE_INSENSITIVE);
     private static final Pattern PAREN_OPT  = Pattern.compile("\\(([^)]+)\\)");
 
-    private static final Set<String> OPTION_HINTS = Set.of(
-            "곱빼기","대","소","라지","레귤러","추가","면추가","밥추가","세트","여름한정","한정","핫","아이스"
-    );
+    // 리소스에서 통합 키워드/섹션 로드 (중복 자동 제거)
+    private static final Set<String> MENU_KEYWORDS = loadKeywords("static/menu_keywords/menu_keywords.txt");
+    private static final Set<String> SECTION_HINTS = loadKeywords("static/menu_keywords/section_hints.txt");
 
-    // 섹션 헤더(한/영 혼용)
-    private static final Set<String> SECTION_HINTS = Set.of(
-            "대표메뉴","한그릇메뉴","세트메뉴","점심특선","추천","인기",
-            "추가","면추가","공기밥","사이드","토핑","주류","음료","디저트",
-            "포장","포장가능","테이크아웃","모든 메뉴 포장 가능",
-            "SUSHI","SASHIMI","DRINK","DRINKS","BEVERAGE","BEVERAGES",
-            "SET","SET A","SET B","SET C","SET D","A SET","B SET","C SET","D SET",
-            "LUNCH SET","DINNER SET","COMBO","COURSE"
-    );
-
-    // OCR 흔한 오인식 교정(필요 시 확장)
+    // OCR 흔한 오인식 교정
     private static final Map<String,String> CONFUSABLES = Map.of(
             "Λ","A","Η","H","Β","B","Ο","O","Ι","I","С","C","Т","T"
     );
@@ -131,6 +127,20 @@ public class MenuBoardTranslateService {
 
     // ---------------- helpers ----------------
 
+    private static Set<String> loadKeywords(String classpathLocation) {
+        try (InputStream is = MenuBoardTranslateService.class.getClassLoader().getResourceAsStream(classpathLocation)) {
+            if (is == null) throw new IllegalStateException("Resource not found: " + classpathLocation);
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+                return br.lines()
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty() && !s.startsWith("#"))
+                        .collect(Collectors.toCollection(LinkedHashSet::new)); // 중복 제거 + 순서 보존
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to load keywords from " + classpathLocation, e);
+        }
+    }
+
     private String clean(String s) {
         String t = s == null ? "" : s.trim();
         t = fixConfusables(t);
@@ -148,11 +158,11 @@ public class MenuBoardTranslateService {
 
     private boolean isNoise(String s) {
         String core = s.replaceAll("[\\p{Punct}\\p{S}\\s]+", "");
-        if (core.isBlank()) return true;            // 기호뿐
-        if (core.length() <= 1) return true;        // 한 글자
-        if (s.matches("^[A-Za-z]$")) return true;   // 단일 영문
-        if (s.matches("^\\(?\\)?$")) return true;   // () 만
-        if (s.matches("^\\d{1,2}원$")) return true; // 2자리 이하는 노이즈
+        if (core.isBlank()) return true;
+        if (core.length() <= 1) return true;
+        if (s.matches("^[A-Za-z]$")) return true;
+        if (s.matches("^\\(?\\)?$")) return true;
+        if (s.matches("^\\d{1,2}원$")) return true;
         return false;
     }
 
@@ -178,18 +188,17 @@ public class MenuBoardTranslateService {
             String in = m.group(1).trim();
             if (!in.isBlank()) opt.append(in).append(" ");
         }
-        for (String h : OPTION_HINTS) {
-            if (s.contains(h)) opt.append(h).append(" ");
+        // 메뉴 키워드(음식/음료/주류/디저트/해외요리) 힌트 붙이기
+        for (String h : MENU_KEYWORDS) {
+            if (s.contains(h)) { opt.append(h).append(" "); break; }
         }
-        if (COUNT_UNIT.matcher(s).find()) {
-            opt.append("수량표기").append(" ");
-        }
+        if (COUNT_UNIT.matcher(s).find()) opt.append("수량표기").append(" ");
         return opt.toString().trim();
     }
 
     private String removeOptionsFromName(String s) {
         String out = s.replaceAll("\\([^)]*\\)", " ");
-        for (String h : OPTION_HINTS) out = out.replace(h, " ");
+        for (String h : MENU_KEYWORDS) out = out.replace(h, " ");
         out = out.replaceAll("\\s+", " ").trim();
         return out;
     }
@@ -259,3 +268,4 @@ public class MenuBoardTranslateService {
         }
     }
 }
+
