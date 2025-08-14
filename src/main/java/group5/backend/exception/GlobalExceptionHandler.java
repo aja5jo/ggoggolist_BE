@@ -9,6 +9,8 @@ import group5.backend.exception.login.UserNotFoundException;
 import group5.backend.exception.login.UserNotFoundByEmailException;
 import group5.backend.exception.login.WrongPasswordException;
 import group5.backend.exception.signup.DuplicateEmailException;
+import group5.backend.exception.store.StoreNotFoundException;
+import group5.backend.exception.event.EventNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -97,6 +99,19 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HandleInvalidFilterException.class)
     public ResponseEntity<ApiResponse<?>> handleInvalidFilter(HandleInvalidFilterException e) {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+
+    //가게 없음
+    @ExceptionHandler(StoreNotFoundException.class)
+    public ResponseEntity<ApiResponse<?>> handleStoreNotFound(StoreNotFoundException e) {
+        return buildErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
+    }
+
+    //이벤트 없음
+    @ExceptionHandler(EventNotFoundException.class)
+    public org.springframework.http.ResponseEntity<group5.backend.response.ApiResponse<?>> handleEventNotFound(
+            EventNotFoundException e) {
+        return buildErrorResponse(org.springframework.http.HttpStatus.NOT_FOUND, e.getMessage());
     }
 
     // 그 외 모든 예외

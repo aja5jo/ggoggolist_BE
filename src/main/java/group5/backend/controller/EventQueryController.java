@@ -5,6 +5,7 @@ import group5.backend.dto.category.response.CategoryFeedItemResponse;
 import group5.backend.dto.common.event.FilterType;
 import group5.backend.dto.common.event.response.EventOverviewResponse;
 import group5.backend.dto.common.event.response.EventPageResponse;
+import group5.backend.dto.common.event.response.EventDetailResponse;
 import group5.backend.response.ApiResponse;
 import group5.backend.service.EventQueryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,7 +22,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/events")
@@ -60,6 +63,26 @@ public class EventQueryController {
             return ResponseEntity.ok(new ApiResponse(true, 200, "전체 overview 조회 성공", data));
         }
     }
+
+    @RestController
+    @RequiredArgsConstructor
+    public class EventQueryController {
+
+        private final EventQueryService eventQueryService;
+
+        @GetMapping("/api/event/{eventId}")
+        public ResponseEntity<ApiResponse<EventDetailResponse>> getEventDetail(
+                @SessionAttribute(name = "USER_ID", required = false) Long userId,
+                @PathVariable Long eventId
+        ) {
+            var data = eventQueryService.getEventDetail(userId, eventId);
+            return ResponseEntity.ok(new ApiResponse<>(true, 200, "이벤트 상세 정보 조회 성공", data));
+        }
+    }
+
+
+
+
 }
 
 

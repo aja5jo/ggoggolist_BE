@@ -7,6 +7,8 @@ import group5.backend.dto.category.response.CategoryFeedItemResponse;
 import group5.backend.dto.common.event.FilterType;
 import group5.backend.dto.common.event.response.EventOverviewResponse;
 import group5.backend.dto.common.event.response.MixedFeedListResponse;
+import group5.backend.dto.common.event.response.EventDetailResponse;
+import group5.backend.exception.event.EventNotFoundException;
 import group5.backend.exception.event.HandleInvalidFilterException;
 import group5.backend.repository.EventRepository;
 import group5.backend.repository.FavoriteEventRepository;
@@ -23,6 +25,8 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.Arrays;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -211,5 +215,70 @@ public class EventQueryService {
                 .collect(Collectors.joining(", "));
         return "유효하지 않은 필터 값입니다. (" + allowed + " 중 하나)";
     }
+
+
+    /* ======================= 수민- 이벤트 디테일 반환 ======================= */
+
+    public EventDetailResponse getEventDetail(Long userId, Long eventId) {
+        // 1) 이벤트 조회
+        var e = eventRepository.findById(eventId)
+                .orElseThrow(() -> new EventNotFoundException(eventId, "해당 ID의 이벤트를 찾을 수 없습니다."));
+
+        // 2) 진행 중 필터 (오늘이 범위 밖이면 404로 숨김)
+        LocalDate today = LocalDate.now();
+        if (e.getStartDate() != null && e.getEndDate() != null) {
+            boolean ongoing = !today.isBefore(e.getStartDate()) && !today.isAfter(e.getEndDate());
+            if (!ongoing) {
+                throw new EventNotFoundException(eventId, "해당 ID의 이벤트를 찾을 수 없습니다.");
+            }
+        }
+
+        // 3) 로그인 시 liked 여부
+        boolean liked = (userId != null) && favoriteEventRepository.existsByUserIdAndEventId(userId, eventId);
+
+        // 4) images 파싱 (콤마 → List)
+        List<String> images = parseImages(e.getImages());
+
+        // 5) StoreSimpleDto 매핑
+        var store = e.getStore();
+        var storeDto = EventDetailResponse.StoreSimpleDto.builder()
+                .storeId(store != null ? store.getId() : null)
+                .storeName(store != null ? store.getName() : null)
+                .address(store != null ? store.getAddress() : null)
+                .phone(store != null ? store.getNumber() : null)
+                .storeImageUrl(store != null ? store.getThumbnail() : null)
+                .build();
+
+        // 6) DTO 조립 (명세 스키마)
+        return EventDetailResponse.builder()
+                .id(e.getId() != null ? e.getId().intValue() : null) // Integer 스펙에 맞춤
+                .name(e.getName())
+                .description(e.getDesc())   // desc → description
+                .intro(e.getIntro())
+                .thumbnail(e.getThumbnail())
+                .images(images)
+                .startDate(e.getStartDate())
+                .endDate(e.getEndDate())
+                .startTime(e.getStartTime())
+                .endTime(e.getEndTime())
+                .isPopup(e.getIsPopup())
+                .likeCount(e.getLikeCount())
+                .liked(liked)
+                .store(storeDto)
+                .build();
+    }
+
+    private List<String> parseImages(String images) {
+        if (images == null || images.isBlank()) return List.of();
+        if (!images.contains(",")) return List.of(images.trim());
+        return Arrays.stream(images.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .toList();
+    }
+
+
+
+
 }
 
