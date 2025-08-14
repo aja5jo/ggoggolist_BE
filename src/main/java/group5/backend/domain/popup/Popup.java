@@ -26,7 +26,7 @@ public class Popup {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Category category;   // ✅ 추가
+    private Category category;
 
     @Column(nullable = false)
     private String name;

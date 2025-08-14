@@ -8,7 +8,7 @@ import group5.backend.response.ApiResponse;
 import group5.backend.service.CategoryFeedService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/categories")
 @RequiredArgsConstructor
+@Tag(name = "카테고리 조회", description = "가게, 이벤트, 팝업 항목별로 조회")
 public class CategoryFeedController {
 
     private final CategoryFeedService categoryFeedService;
@@ -46,11 +47,11 @@ public class CategoryFeedController {
     }
 
     @Operation(
-            summary = "단일 카테고리 피드 조회 (가게+이벤트 합산 정렬)",
+            summary = "단일 카테고리 피드 조회 (가게+이벤트+팝업 합산 정렬)",
             description = """
-            - path로 받은 카테고리에 한해, 가게/이벤트를 likeCount desc, id desc로 합쳐 정렬해 '전부' 반환합니다.
-            - 이벤트는 진행 중(startDate ≤ today ≤ endDate)만 포함합니다.
-            - 응답은 { category, items[] } 형태이며 items는 STORE/EVENT가 섞여 있습니다.
+            - path로 받은 카테고리에 한해, 가게/이벤트/팝업을 likeCount desc, id desc로 합쳐 정렬해 '전부' 반환합니다.
+            - 이벤트, 팝업은 진행 중(startDate ≤ today ≤ endDate)만 포함합니다.
+            - 응답은 { category, items[] } 형태이며 items는 STORE/EVENT/POPUP이 섞여 있습니다.
             """
     )
     @GetMapping("/{category}")

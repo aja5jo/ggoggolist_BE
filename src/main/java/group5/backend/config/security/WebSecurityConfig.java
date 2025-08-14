@@ -10,11 +10,15 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.config.Customizer;
+import org.springframework.http.HttpMethod;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -26,6 +30,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * @Secured: 지정한 역할(예: ROLE_ADMIN)이 있어야 메서드를 실행할 수 있도록 제한하는 애노테이션
  * ex) @Secured("ROLE_MERCHANT")
  * */
+@EnableMethodSecurity(prePostEnabled = true)
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -47,7 +52,10 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
-                .csrf(csrf -> csrf.disable()) // REST API에서는 CSRF 비활성화
+                .cors(Customizer.withDefaults())              // ✅ CORS를 Security 필터에 연결
+                .csrf(csrf -> csrf.disable())                 // 개발 단계면 비활성 유지 OK
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)) // ✅ 추가
+                .securityContext(sc -> sc.requireExplicitSave(false))
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(customAuthenticationEntryPoint)
                         .accessDeniedHandler(customAccessDeniedHandler)
@@ -60,8 +68,10 @@ public class WebSecurityConfig {
                                 "/swagger-ui.html"
                         ).permitAll()
                         .requestMatchers("/api/signup", "/api/login").permitAll()
-                        .requestMatchers("/api/users/**").hasAuthority("USER")  // 수정됨
-                        .requestMatchers("/api/merchants/**").hasAuthority("MERCHANT")  // 수정됨
+                        .requestMatchers("/images/**").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()  // ✅ CORS preflight
+                        .requestMatchers("/api/users/**").hasAuthority("USER")
+                        .requestMatchers("/api/merchants/**").hasAuthority("MERCHANT")
                         .requestMatchers("/api/**").permitAll()
                         .anyRequest().authenticated()
                 )

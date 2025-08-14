@@ -6,10 +6,13 @@ import group5.backend.dto.common.event.FilterType;
 import group5.backend.dto.common.event.response.EventOverviewResponse;
 import group5.backend.dto.common.event.response.EventPageResponse;
 import group5.backend.dto.common.event.response.EventDetailResponse;
+import group5.backend.dto.common.popup.response.PopupSummaryResponse;
 import group5.backend.response.ApiResponse;
 import group5.backend.service.EventQueryService;
+import group5.backend.service.PopupService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
@@ -25,14 +28,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-
 @RestController
-@RequestMapping("/api/events")
+@RequestMapping("/api")
 @RequiredArgsConstructor
+@Tag(name = "이벤트/팝업 조회", description = "유저가 항목별 이벤트와 팝업 조회")
 public class EventQueryController {
 
     private final EventQueryService eventQueryService;
-
+    private final PopupService popupService;
     @Operation(
             summary = "이벤트/팝업 조회 (필터별 or 전체 Overview)",
             description = """
@@ -45,7 +48,7 @@ public class EventQueryController {
             """
     )
     @Parameter(name = "filter", description = "필터 타입 (POPULAR, ONGOING, CLOSING_TODAY, UPCOMING)", required = false, example = "POPULAR")
-    @GetMapping
+    @GetMapping("/events")
     @Transactional(readOnly = true)
     public ResponseEntity<ApiResponse> getEventsOrOverview(
             @RequestParam(value = "filter", required = false) FilterType filter,
@@ -64,25 +67,30 @@ public class EventQueryController {
         }
     }
 
-    @RestController
-    @RequiredArgsConstructor
-    public class EventQueryController {
+    @Operation(
+            summary = "이번 주 팝업 스테이션 조회",
+            description = "이번 주(월~일)에 진행 중인 모든 팝업 스테이션을 반환"
+    )
 
-        private final EventQueryService eventQueryService;
-
-        @GetMapping("/api/event/{eventId}")
-        public ResponseEntity<ApiResponse<EventDetailResponse>> getEventDetail(
-                @SessionAttribute(name = "USER_ID", required = false) Long userId,
-                @PathVariable Long eventId
-        ) {
-            var data = eventQueryService.getEventDetail(userId, eventId);
-            return ResponseEntity.ok(new ApiResponse<>(true, 200, "이벤트 상세 정보 조회 성공", data));
-        }
+    @GetMapping("/popups")
+    public ResponseEntity<ApiResponse<List<PopupSummaryResponse>>> getThisWeekPopups(@AuthenticationPrincipal User loginUser) {
+        Long userId = (loginUser != null) ? loginUser.getId() : null;
+        return ResponseEntity.ok(
+                new ApiResponse(true, 200, "이번 주 팝업 스테이션 조회 성공",
+                        popupService.getThisWeekPopups(userId))
+        );
     }
 
+    private final EventQueryService eventQueryService;
 
-
-
+    @GetMapping("/api/event/{eventId}")
+    public ResponseEntity<ApiResponse<EventDetailResponse>> getEventDetail(
+            @SessionAttribute(name = "USER_ID", required = false) Long userId,
+            @PathVariable Long eventId
+    ) {
+        var data = eventQueryService.getEventDetail(userId, eventId);
+        return ResponseEntity.ok(new ApiResponse<>(true, 200, "이벤트 상세 정보 조회 성공", data));
+    }
 }
 
 

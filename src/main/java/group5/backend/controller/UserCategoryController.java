@@ -8,6 +8,7 @@ import group5.backend.service.UserCategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/users/categories")
+@Tag(name = "유저: 카테고리 토글", description = "유저의 관심 있는 카테고리 등록/해제")
 public class UserCategoryController {
 
     private final UserCategoryService userCategoryService;

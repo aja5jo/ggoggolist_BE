@@ -1,0 +1,42 @@
+대표메뉴
+한그릇메뉴
+세트메뉴
+점심특선
+추천
+인기
+추가
+면추가
+공기밥
+사이드
+토핑
+주류
+음료
+디저트
+포장
+포장가능
+테이크아웃
+모든 메뉴 포장 가능
+SUSHI
+SASHIMI
+DRINK
+DRINKS
+BEVERAGE
+BEVERAGES
+SET
+SET A
+SET B
+SET C
+SET D
+A SET
+B SET
+C SET
+D SET
+LUNCH SET
+DINNER SET
+COMBO
+COURSE
+ALCOHOL
+COCKTAILS
+WINE
+WHISKY
+BEER
