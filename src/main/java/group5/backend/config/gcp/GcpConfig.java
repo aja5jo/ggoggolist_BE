@@ -1,6 +1,4 @@
 package group5.backend.config.gcp;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,10 +16,4 @@ public class GcpConfig {
                 .connectTimeout(Duration.ofSeconds(10))
                 .build();
     }
-
-    @Bean
-    public ObjectMapper objectMapper() {
-        return new ObjectMapper();
-    }
 }
-

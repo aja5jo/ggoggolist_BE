@@ -11,4 +11,3 @@ public class FavoriteNotFoundException extends RuntimeException {
         super(message, cause);
     }
 }
-

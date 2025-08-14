@@ -23,8 +23,7 @@ public interface FavoriteEventRepository extends JpaRepository<FavoriteEvent, Lo
     // 유저가 이미 해당 이벤트를 즐겨찾기했는지 여부 확인
     Optional<FavoriteEvent> findByUserAndEvent(User user, Event event);
 
-    // 즐겨찾기 삭제 (토글용)
-    void deleteByUserAndEvent(User user, Event event);
+    long deleteByEvent_Id(Long eventId);
 
     boolean existsByUserIdAndEventId(Long userId, Long eventId);
 

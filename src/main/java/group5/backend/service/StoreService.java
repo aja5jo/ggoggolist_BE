@@ -55,32 +55,6 @@ public class StoreService {
         return toSummaryResponse(store, false);
     }
 
-// 현재 user-store 1대1인데 put 하면 에러가..
-//    @Transactional
-//    public StoreDetailResponse updateStorePut(User merchant, StoreUpdateRequest req) {
-//        Store store = storeRepository.findByOwnerId(merchant.getId())
-//                .orElseThrow(() -> new AccessDeniedException("등록된 가게가 없습니다."));
-//
-//        if (req.getCategory() != null) {
-//            Category category = Category.valueOf(req.getCategory());
-//            merchantCategoryService.setMerchantCategory(merchant, category);
-//            store.setCategory(category);
-//        } else {
-//            store.setCategory(null);
-//        }
-//
-//        store.setName(req.getName());
-//        store.setAddress(req.getAddress());
-//        store.setNumber(req.getNumber());
-//        store.setIntro(req.getIntro());
-//        store.setThumbnail(req.getThumbnail());
-//        store.setImages(req.getImages());
-//        store.setStartTime(req.getStartTime());
-//        store.setEndTime(req.getEndTime());
-//
-//        return toDetailResponse(store, false);
-//    }
-
     @Transactional
     public StoreDetailResponse updateStorePatch(User merchant, StoreUpdateRequest req) {
         Store store = storeRepository.findByOwnerId(merchant.getId())

@@ -38,4 +38,3 @@ public class EventDetailResponse {
         private String storeImageUrl;
     }
 }
-
