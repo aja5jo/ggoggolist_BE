@@ -32,4 +32,7 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     // 관심 카테고리 여러 개로 페이지 조회 (정렬은 Pageable로)
     Page<Store> findByCategoryIn(List<Category> categories, Pageable pageable);
 
+    boolean existsByOwnerId(Long ownerId);
+
+    Optional<Store> findByOwnerId(Long ownerId);
 }
