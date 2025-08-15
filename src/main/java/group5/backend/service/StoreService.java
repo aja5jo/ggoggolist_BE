@@ -112,7 +112,7 @@ public class StoreService {
                 .intro(s.getIntro())
                 .category(s.getCategory() != null ? s.getCategory().name() : null)
                 .thumbnail(s.getThumbnail())
-                .images(s.getImages() != null && !s.getImages().isEmpty() ? String.join(",", s.getImages()) : null)
+                .images(s.getImages() != null ? s.getImages() : java.util.Collections.emptyList()) //store 이미지 type 변경
                 .startTime(s.getStartTime())
                 .endTime(s.getEndTime())
                 .likeCount(s.getLikeCount())

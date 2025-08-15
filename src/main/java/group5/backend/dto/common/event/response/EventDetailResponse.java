@@ -23,7 +23,6 @@ public class EventDetailResponse {
     private LocalTime startTime;
     private LocalTime endTime;
 
-    private Boolean isPopup;
     private Integer likeCount;
     private boolean liked;
     private StoreSimpleDto store;

@@ -122,4 +122,16 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     // 종료일이 현재 날짜 이전인 모든 이벤트 삭제
     void deleteByEndDateBefore(LocalDate date);
 
+    // 관심 카테고리 목록 + 진행중( start <= today <= end ) + 페이지네이션
+    @EntityGraph(attributePaths = "store")
+    Page<Event> findByStore_CategoryInAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+            List<Category> categories,
+            LocalDate startLte,
+            LocalDate endGte,
+            Pageable pageable
+    );
+
+    // 종료일이 현재 날짜 이전인 모든 이벤트 삭제
+    void deleteByEndDateBefore(LocalDate date);
+
 }

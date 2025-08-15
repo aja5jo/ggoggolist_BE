@@ -22,10 +22,14 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     //Optional<Store> findByOwner(User owner);
     Optional<Store> findByOwnerId(Long ownerId);
 
-    // ✅ [신규] 카테고리별 스토어 조회 (정렬/개수는 Pageable로 제어)
+    // 카테고리별 스토어 조회 (정렬/개수는 Pageable로 제어)
     Page<Store> findByCategory(Category category, Pageable pageable);
 
     boolean existsByOwnerId(Long ownerId);
     // 추가: 전체 + 정렬
     List<Store> findByCategory(Category category, Sort sort);
+
+    // 관심 카테고리 여러 개로 페이지 조회 (정렬은 Pageable로)
+    Page<Store> findByCategoryIn(List<Category> categories, Pageable pageable);
+
 }

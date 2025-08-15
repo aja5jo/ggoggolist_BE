@@ -25,5 +25,7 @@ public class PopupDetailResponse {
     private LocalTime endTime;
     private String address;
 
+    private Integer likeCount;
+    private boolean liked;
     private int like;
 }
