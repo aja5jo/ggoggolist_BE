@@ -221,7 +221,7 @@ public class EventQueryService {
 
     public EventDetailResponse getEventDetail(Long userId, Long eventId) {
         // 1) 이벤트 조회
-        var e = eventRepository.findById(eventId)
+        Event e = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EventNotFoundException(eventId, "해당 ID의 이벤트를 찾을 수 없습니다."));
 
         // 2) 진행 중 필터 (오늘이 범위 밖이면 404로 숨김)
@@ -236,24 +236,28 @@ public class EventQueryService {
         // 3) 로그인 시 liked 여부
         boolean liked = (userId != null) && favoriteEventRepository.existsByUserIdAndEventId(userId, eventId);
 
-        // 4) images 파싱 (콤마 → List)
-        List<String> images = parseImages(e.getImages());
+        // 4) images 파싱
+        List<String> images = (e.getImages() != null) ? e.getImages() : List.of();
 
         // 5) StoreSimpleDto 매핑
         var store = e.getStore();
-        var storeDto = EventDetailResponse.StoreSimpleDto.builder()
-                .storeId(store != null ? store.getId() : null)
-                .storeName(store != null ? store.getName() : null)
-                .address(store != null ? store.getAddress() : null)
-                .phone(store != null ? store.getNumber() : null)
-                .storeImageUrl(store != null ? store.getThumbnail() : null)
-                .build();
+        EventDetailResponse.StoreSimpleDto storeDto = null;
+        if (store != null) {
+            storeDto = EventDetailResponse.StoreSimpleDto.builder()
+                    .storeId(store.getId())
+                    .storeName(store.getName())
+                    .address(store.getAddress())
+                    .phone(store.getNumber())
+                    .storeImageUrl(store.getThumbnail())
+                    .build();
+        }
 
-        // 6) DTO 조립 (명세 스키마)
+
+        // 6) DTO 조립 — DTO 타입과 맞춤
         return EventDetailResponse.builder()
-                .id(e.getId() != null ? e.getId().intValue() : null) // Integer 스펙에 맞춤
+                .id(e.getId() != null ? e.getId().intValue() : null)
                 .name(e.getName())
-                .description(e.getDesc())   // desc → description
+                .description(e.getDescription())
                 .intro(e.getIntro())
                 .thumbnail(e.getThumbnail())
                 .images(images)
@@ -261,7 +265,6 @@ public class EventQueryService {
                 .endDate(e.getEndDate())
                 .startTime(e.getStartTime())
                 .endTime(e.getEndTime())
-                .isPopup(e.getIsPopup())
                 .likeCount(e.getLikeCount())
                 .liked(liked)
                 .store(storeDto)

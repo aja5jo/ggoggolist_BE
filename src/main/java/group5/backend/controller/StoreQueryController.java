@@ -1,6 +1,6 @@
 package group5.backend.controller;
 
-import group5.backend.dto.store.StoreDetailResponse;
+import group5.backend.dto.common.store.response.StoreDetailResponse;
 import group5.backend.response.ApiResponse;
 import group5.backend.service.StoreQueryService;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,7 @@ public class StoreQueryController {
 
     @GetMapping("/api/store/{storeId}")
     public ResponseEntity<ApiResponse<StoreDetailResponse>> getStoreDetail(
-            @SessionAttribute(name = "USER_ID", required = false) Integer userId,
+            @SessionAttribute(name = "USER_ID", required = false) Long userId,
             @PathVariable Long storeId
     ) {
         var data = storeQueryService.getStoreDetail(userId, storeId);

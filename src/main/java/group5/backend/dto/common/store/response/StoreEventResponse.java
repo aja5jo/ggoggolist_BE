@@ -1,4 +1,4 @@
-package group5.backend.dto.common.response;
+package group5.backend.dto.common.store.response;
 
 
 import group5.backend.dto.common.event.response.EventSummaryResponse;

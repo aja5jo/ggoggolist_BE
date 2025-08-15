@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -15,7 +16,7 @@ public class StoreDetailResponse{
     private String intro;
     private String category;
     private String thumbnail;
-    private String images;
+    private List<String> images;
     private LocalTime startTime;
     private LocalTime endTime;
     private Integer likeCount;

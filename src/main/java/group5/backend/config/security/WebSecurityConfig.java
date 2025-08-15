@@ -64,6 +64,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/merchants/**").hasAuthority("MERCHANT")  // 수정됨
                         .requestMatchers("/api/**").permitAll()
                         .anyRequest().authenticated()
+                        .requestMatchers("/api/popup/**").permitAll() //팝업접근 허용
                 )
 
                 .logout(logout -> logout
