@@ -12,6 +12,10 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+
 @Repository
 public interface StoreRepository extends JpaRepository<Store, Long> {
 
@@ -35,4 +39,13 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     boolean existsByOwnerId(Long ownerId);
 
     Optional<Store> findByOwnerId(Long ownerId);
+
+    @Query("""
+      select distinct s
+      from Store s
+      left join fetch s.images imgs
+      left join fetch s.owner o
+      where s.id = :id
+      """)
+    Optional<Store> findDetailById(@Param("id") Long id);
 }

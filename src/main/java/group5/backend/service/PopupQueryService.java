@@ -21,7 +21,7 @@ public class PopupQueryService {
     private final FavoritePopupRepository favoritePopupRepository;
 
     public PopupDetailResponse getPopupDetail(@Nullable Long userId, Long popupId) {
-        Popup p = popupRepository.findById(popupId)
+        Popup p = popupRepository.findDetailById(popupId)
                 .orElseThrow(() -> new PopupNotFoundException(popupId, "해당 ID의 팝업을 찾을 수 없습니다."));
 
         boolean liked = (userId != null) && favoritePopupRepository.existsByUserIdAndPopupId(userId, popupId);

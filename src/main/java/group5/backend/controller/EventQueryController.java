@@ -77,7 +77,7 @@ public class EventQueryController {
 
 
 
-    @GetMapping("/events/{eventId}")
+    @GetMapping("/event/{eventId}")
     @Transactional(readOnly = true) // (3) 읽기 전용 트랜잭션
     public ResponseEntity<ApiResponse<EventDetailResponse>> getEventDetail(
             @PathVariable Long eventId,
