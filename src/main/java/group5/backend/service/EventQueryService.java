@@ -219,27 +219,19 @@ public class EventQueryService {
 
     /* ======================= 수민- 이벤트 디테일 반환 ======================= */
 
-    public EventDetailResponse getEventDetail(Long userId, Long eventId) {
-        // 1) 이벤트 조회
-        Event e = eventRepository.findById(eventId)
+    @Transactional(readOnly = true)
+    public EventDetailResponse getEventDetail(Long eventId, @Nullable Long userId) {
+        // 1) fetch-join 메서드로 단건 로딩
+        Event e = eventRepository.findDetailById(eventId)
                 .orElseThrow(() -> new EventNotFoundException(eventId, "해당 ID의 이벤트를 찾을 수 없습니다."));
 
-        // 2) 진행 중 필터 (오늘이 범위 밖이면 404로 숨김)
-        LocalDate today = LocalDate.now();
-        if (e.getStartDate() != null && e.getEndDate() != null) {
-            boolean ongoing = !today.isBefore(e.getStartDate()) && !today.isAfter(e.getEndDate());
-            if (!ongoing) {
-                throw new EventNotFoundException(eventId, "해당 ID의 이벤트를 찾을 수 없습니다.");
-            }
-        }
-
-        // 3) 로그인 시 liked 여부
+        // 2) liked 계산 (비로그인 안전)
         boolean liked = (userId != null) && favoriteEventRepository.existsByUserIdAndEventId(userId, eventId);
 
-        // 4) images 파싱
+        // 3) 이미지 널 가드
         List<String> images = (e.getImages() != null) ? e.getImages() : List.of();
 
-        // 5) StoreSimpleDto 매핑
+        // 4) 스토어 널 가드
         var store = e.getStore();
         EventDetailResponse.StoreSimpleDto storeDto = null;
         if (store != null) {
@@ -252,10 +244,9 @@ public class EventQueryService {
                     .build();
         }
 
-
-        // 6) DTO 조립 — DTO 타입과 맞춤
+        // 5) DTO 조립 (시간/문자열은 그대로 null 허용)
         return EventDetailResponse.builder()
-                .id(e.getId() != null ? e.getId().intValue() : null)
+                .id(e.getId())
                 .name(e.getName())
                 .description(e.getDescription())
                 .intro(e.getIntro())
@@ -270,6 +261,7 @@ public class EventQueryService {
                 .store(storeDto)
                 .build();
     }
+
 
     private List<String> parseImages(String images) {
         if (images == null || images.isBlank()) return List.of();

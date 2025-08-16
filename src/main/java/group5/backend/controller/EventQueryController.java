@@ -75,21 +75,16 @@ public class EventQueryController {
             description = "이번 주(월~일)에 진행 중인 모든 팝업 스테이션을 반환"
     )
 
-    @GetMapping("/popups")
-    public ResponseEntity<ApiResponse<List<PopupSummaryResponse>>> getThisWeekPopups(@AuthenticationPrincipal User loginUser) {
-        Long userId = (loginUser != null) ? loginUser.getId() : null;
-        return ResponseEntity.ok(
-                new ApiResponse(true, 200, "이번 주 팝업 스테이션 조회 성공",
-                        popupService.getThisWeekPopups(userId))
-        );
-    }
 
-    @GetMapping("/api/event/{eventId}")
+
+    @GetMapping("/events/{eventId}")
+    @Transactional(readOnly = true) // (3) 읽기 전용 트랜잭션
     public ResponseEntity<ApiResponse<EventDetailResponse>> getEventDetail(
-            @SessionAttribute(name = "USER_ID", required = false) Long userId,
-            @PathVariable Long eventId
+            @PathVariable Long eventId,
+            @AuthenticationPrincipal User loginUser   // (1) 로그인 사용자 주입
     ) {
-        var data = eventQueryService.getEventDetail(userId, eventId);
+        Long userId = (loginUser == null) ? null : loginUser.getId();
+        var data = eventQueryService.getEventDetail(eventId, userId); // (2) 오버로드 호출
         return ResponseEntity.ok(new ApiResponse<>(true, 200, "이벤트 상세 정보 조회 성공", data));
     }
 }

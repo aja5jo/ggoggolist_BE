@@ -22,4 +22,6 @@ public class PopupQueryController {
         PopupDetailResponse data = popupQueryService.getPopupDetail(userId, popupId);
         return ResponseEntity.ok(new ApiResponse<>(true, 200, "팝업 상세 정보 조회", data));
     }
+
+
 }

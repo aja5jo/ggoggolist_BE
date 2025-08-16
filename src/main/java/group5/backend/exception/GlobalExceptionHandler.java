@@ -26,6 +26,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.validation.BindException;
 import java.util.List;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -189,4 +191,5 @@ public class GlobalExceptionHandler {
         ApiResponse<T> response = new ApiResponse<>(false, status.value(), message, data);
         return ResponseEntity.status(status).body(response);
     }
+
 }

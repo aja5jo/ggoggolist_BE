@@ -1,5 +1,4 @@
 package group5.backend.data;
-
 import group5.backend.domain.event.Event;
 import group5.backend.domain.popup.Popup;
 import group5.backend.domain.store.Store;
@@ -30,7 +29,7 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
-@Component
+//@Component
 @RequiredArgsConstructor
 public class DataInitializer implements ApplicationRunner {
 
@@ -50,6 +49,7 @@ public class DataInitializer implements ApplicationRunner {
     public void run(ApplicationArguments args) {
         Faker faker = new Faker(new Locale("ko"));
         Category[] categories = Category.values();
+
 
         // USER 1명
         User user = User.builder()
@@ -170,7 +170,6 @@ public class DataInitializer implements ApplicationRunner {
         em.flush();
         em.clear();
     }
-
     private User getRandomMerchant() {
         List<User> merchants = userRepository.findAll()
                 .stream()

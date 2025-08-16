@@ -37,6 +37,16 @@ public interface EventRepository extends JpaRepository<Event, Long> {
         """)
     List<Event> findByStoreIdWithStoreAndImages(@Param("storeId") Long storeId);
 
+    // EventRepository.java (추가)
+    @Query("""
+      select distinct e
+      from Event e
+      join fetch e.store s
+      left join fetch e.images imgs
+      where e.id = :id
+      """)
+    Optional<Event> findDetailById(@Param("id") Long id);
+
     /* ========== 카테고리 + 진행중 (inclusive) ========== */
     @EntityGraph(attributePaths = "store")
     Page<Event> findByStore_CategoryAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
@@ -130,8 +140,5 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             LocalDate endGte,
             Pageable pageable
     );
-
-    // 종료일이 현재 날짜 이전인 모든 이벤트 삭제
-    void deleteByEndDateBefore(LocalDate date);
 
 }

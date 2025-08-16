@@ -48,7 +48,8 @@ public class WebSecurityConfig {
                 .requestMatchers("/static/**");
     }
 
-    // 보안 필터 체인 설정
+    // 보안 필터 체인 설정 - /
+    /*
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
@@ -103,6 +104,67 @@ public class WebSecurityConfig {
                 )
                 .build();
     }
+    */
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        return http
+                .csrf(csrf -> csrf.disable()) // REST API에서는 CSRF 비활성화
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                        .accessDeniedHandler(customAccessDeniedHandler)
+                )
+                .authorizeHttpRequests(auth -> auth
+                        // Swagger 문서 허용
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/v3/api-docs/swagger-config",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
+
+                        // 인증/회원가입 허용
+                        .requestMatchers("/api/signup", "/api/login").permitAll()
+
+                        // 팝업 접근 허용 (❗ anyRequest 전에 와야 함)
+                        .requestMatchers("/api/popup/**").permitAll()
+
+                        // 권한 필요한 API들
+                        .requestMatchers("/api/users/**").hasAuthority("USER")
+                        .requestMatchers("/api/merchants/**").hasAuthority("MERCHANT")
+
+                        // 나머지 API들 기본 허용 (필요하다면 authenticated 로 바꿀 수 있음)
+                        .requestMatchers("/api/**").permitAll()
+
+                        // 그 외 모든 요청은 인증 필요
+                        .anyRequest().authenticated()
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/api/logout")
+                        .addLogoutHandler((request, response, authentication) -> {
+                            if (authentication == null) {
+                                throw new InsufficientAuthenticationException("로그인이 되어 있지 않습니다.");
+                            }
+                        })
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            response.setContentType("application/json");
+                            response.setCharacterEncoding("UTF-8");
+                            response.setStatus(HttpServletResponse.SC_OK);
+
+                            // 🔥 JSESSIONID 쿠키 삭제
+                            Cookie cookie = new Cookie("JSESSIONID", null);
+                            cookie.setPath("/");
+                            cookie.setMaxAge(0);
+                            response.addCookie(cookie);
+
+                            ApiResponse<?> logoutResponse = new ApiResponse<>(true, 200, "로그아웃 성공", null);
+                            ObjectMapper objectMapper = new ObjectMapper();
+                            response.getWriter().write(objectMapper.writeValueAsString(logoutResponse));
+                        })
+                        .invalidateHttpSession(true)
+                )
+                .build();
+    }
+
 
 
     // 인증 관리자 설정
