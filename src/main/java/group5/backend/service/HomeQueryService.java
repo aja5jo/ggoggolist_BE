@@ -32,6 +32,10 @@ public class HomeQueryService {
     private final FavoriteEventRepository favoriteEventRepository;
     private final UserRepository userRepository;
 
+    public StoreEventResponse getHomeDetails(@Nullable Long userId) {
+        return getHome(userId);
+    }
+
     public StoreEventResponse getHome(@Nullable Long userId) {
         LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
 
