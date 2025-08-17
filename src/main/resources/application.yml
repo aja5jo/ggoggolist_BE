@@ -1,24 +1,41 @@
 spring:
   application:
     name: backend-project
+  profiles:
+    active: local
 
   datasource:
-    url: jdbc:mysql://localhost:3306/backend #테이블 이름
+    url: jdbc:mysql://localhost:3306/backend # 테이블 이름
     driver-class-name: com.mysql.cj.jdbc.Driver
-    username: ${DB_USERNAME} #자기 username .env에 등록
-    password: ${DB_PASSWORD} # 자기 password .env에 등록
+    username: ${DB_USERNAME} # .env에 등록된 username
+    password: ${DB_PASSWORD} # .env에 등록된 password
 
   jpa:
     hibernate:
-      ddl-auto: create  # 초기에는 create, 나중에 배포 전에 update로 바꿔주기!
+      ddl-auto: create  # 초기에는 create, 배포 전 update로 변경
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
         format_sql: true
         show_sql: true
     open-in-view: true
+
 data:
   init: true
+
+
+app:
+  cors:
+    allowed-origins:
+      - http://localhost:3000   # FE 로컬 주소
+
+server:
+  servlet:
+    session:
+      cookie:
+        name: JSESSIONID
+        same-site: None
+        secure: false           # 로컬(http)에서는 false, 배포 시 true로 변경
 
 openai:
   base-url: https://api.openai.com/v1
@@ -34,3 +51,9 @@ assets:
 gcp:
   api:
     key: ${GCP_API_KEY}
+cloud:
+  aws:
+    s3:
+      bucket: your-s3-bucket-name  # 본인의 S3 버킷 이름을 입력하세요.
+    region:
+      static: ap-northeast-2      # 서울 리전을 사용합니다. (ap-northeast-2)

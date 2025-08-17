@@ -1,5 +1,6 @@
 package group5.backend.dto.common.event.response;
 
+import group5.backend.domain.event.Event;
 import lombok.Builder;
 import lombok.Data;
 

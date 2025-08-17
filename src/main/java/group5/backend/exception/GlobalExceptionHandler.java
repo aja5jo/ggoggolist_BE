@@ -3,10 +3,7 @@ package group5.backend.exception;
 import group5.backend.domain.user.Category;
 import group5.backend.exception.event.HandleInvalidFilterException;
 import group5.backend.exception.favorite.FavoriteNotFoundException;
-import group5.backend.exception.gcp.ImageDownloadFailedException;
-import group5.backend.exception.gcp.MissingGcpApiKeyException;
-import group5.backend.exception.gcp.TranslationApiException;
-import group5.backend.exception.gcp.VisionApiException;
+import group5.backend.exception.gcp.*;
 import group5.backend.response.ApiResponse;
 import group5.backend.exception.category.MerchantInvalidCategorySizeException;
 import group5.backend.exception.category.UserInvalidCategorySizeException;
@@ -149,6 +146,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<?>> handleFavoriteNotFoundException(FavoriteNotFoundException ex) {
         // FavoriteNotFoundException이 발생하면 404 Not Found 응답
         return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    //한국어로 번역 관련 처리
+    @ExceptionHandler(InvalidTargetLanguageException.class)
+    public ResponseEntity<ApiResponse<?>> handleInvalidTargetLanguage(InvalidTargetLanguageException ex) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
     // 전역 예외 핸들러에 이미 있다면 유지, 없다면 추가

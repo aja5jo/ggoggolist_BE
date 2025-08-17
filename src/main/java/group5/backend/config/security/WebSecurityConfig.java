@@ -14,8 +14,11 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.config.Customizer;
+import org.springframework.http.HttpMethod;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -49,7 +52,9 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
-                .csrf(csrf -> csrf.disable()) // REST API에서는 CSRF 비활성화
+                .cors(Customizer.withDefaults())              // ✅ CORS를 Security 필터에 연결
+                .csrf(csrf -> csrf.disable())                 // 개발 단계면 비활성 유지 OK
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)) // ✅ 추가
                 .securityContext(sc -> sc.requireExplicitSave(false))
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(customAuthenticationEntryPoint)
@@ -63,10 +68,11 @@ public class WebSecurityConfig {
                                 "/swagger-ui.html"
                         ).permitAll()
                         .requestMatchers("/api/signup", "/api/login").permitAll()
+                        .requestMatchers("/images/**").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()  // ✅ CORS preflight
                         .requestMatchers("/api/users/**").hasAuthority("USER")
                         .requestMatchers("/api/merchants/**").hasAuthority("MERCHANT")
                         .requestMatchers("/api/**").permitAll()
-                        .requestMatchers("/images/**").permitAll()  // 이미지 리소스에 대한 접근을 인증 없이 허용
                         .anyRequest().authenticated()
                 )
 

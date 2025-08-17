@@ -25,6 +25,7 @@ public interface FavoriteEventRepository extends JpaRepository<FavoriteEvent, Lo
 
     // 즐겨찾기 삭제 (토글용)
     long deleteByEvent_Id(Long eventId);
+
     boolean existsByUserIdAndEventId(Long userId, Long eventId);
 
     // User ID와 Event ID로 즐겨찾기를 찾는 메서드 추가
