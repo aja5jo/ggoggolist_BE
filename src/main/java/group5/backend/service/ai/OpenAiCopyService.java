@@ -1,7 +1,7 @@
 package group5.backend.service.ai;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import group5.backend.config.openai.OpenAiProperties;
+import group5.backend.config.ai.OpenAiProperties;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

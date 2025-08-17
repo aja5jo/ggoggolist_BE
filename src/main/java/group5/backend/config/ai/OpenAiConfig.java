@@ -1,4 +1,4 @@
-package group5.backend.config.openai;
+package group5.backend.config.ai;
 
 import io.netty.channel.ChannelOption;
 import lombok.RequiredArgsConstructor;

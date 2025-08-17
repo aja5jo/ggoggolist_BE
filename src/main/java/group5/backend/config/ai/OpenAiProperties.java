@@ -1,7 +1,6 @@
-package group5.backend.config.openai;
+package group5.backend.config.ai;
 
 import lombok.Data;
-import lombok.Getter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Data

@@ -1,6 +1,6 @@
 package group5.backend.controller;
 
-import group5.backend.config.openai.OpenAiProperties;
+import group5.backend.config.ai.OpenAiProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
