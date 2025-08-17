@@ -19,9 +19,18 @@ spring:
     open-in-view: true
 data:
   init: true
+
 openai:
-  api:
-    key: ${OPENAI_API_KEY}
+  base-url: https://api.openai.com/v1
+  api-key: ${OPENAI_API_KEY}
+  chat-model: gpt-4o-mini
+#  image-model: dall-e-3
+  timeout-sec: 30
+  max-retries: 3
+  initial-backoff-ms: 1000
+assets:
+  cdn-base: https://cdn.example.com/        # 배너 이미지 업로드했다면 반환 경로(옵션)
+
 gcp:
   api:
     key: ${GCP_API_KEY}

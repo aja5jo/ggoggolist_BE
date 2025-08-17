@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.validation.BindException;
 import java.util.List;
+import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -148,6 +149,25 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<?>> handleFavoriteNotFoundException(FavoriteNotFoundException ex) {
         // FavoriteNotFoundException이 발생하면 404 Not Found 응답
         return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    // 전역 예외 핸들러에 이미 있다면 유지, 없다면 추가
+    @ExceptionHandler(org.springframework.web.reactive.function.client.WebClientResponseException.Forbidden.class)
+    public ResponseEntity<?> handle403(org.springframework.web.reactive.function.client.WebClientResponseException.Forbidden e){
+        String body = e.getResponseBodyAsString();
+        return ResponseEntity.status(403).body(Map.of(
+                "success", false, "code", 403, "message", body, "data", null
+        ));
+    }
+
+    @ExceptionHandler(org.springframework.web.reactive.function.client.WebClientResponseException.class)
+    public ResponseEntity<?> handleOpenAi(org.springframework.web.reactive.function.client.WebClientResponseException e) {
+        return ResponseEntity.status(e.getStatusCode()).body(Map.of(
+                "success", false,
+                "code", e.getRawStatusCode(),
+                "message", e.getResponseBodyAsString(),
+                "data", null
+        ));
     }
 
     // 그 외 모든 예외
