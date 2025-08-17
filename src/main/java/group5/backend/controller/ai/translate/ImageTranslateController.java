@@ -8,6 +8,7 @@ import group5.backend.dto.translate.request.TranslateMode;
 import group5.backend.dto.translate.response.ImageTranslateResponse;
 import group5.backend.dto.translate.response.SmartTranslateResponse;
 import group5.backend.exception.gcp.ImageDownloadFailedException;
+import group5.backend.exception.gcp.InvalidTargetLanguageException;
 import group5.backend.response.ApiResponse;
 import group5.backend.service.ai.translate.ImageTranslateService;
 import group5.backend.service.ai.translate.MenuBoardDetector;
@@ -43,6 +44,11 @@ public class ImageTranslateController {
     )
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiResponse<SmartTranslateResponse>> smartTranslate(@RequestBody ImageTranslateRequest req) throws Exception {
+
+        if (req.getTargetLang() == SupportedLanguage.KOREAN) {
+            throw new InvalidTargetLanguageException("기본 언어가 선택되어 원문 텍스트를 표시합니다.");
+        }
+
         String imageUrl = req.getImageUrl();
         SupportedLanguage targetLang = req.getTargetLang();
         TranslateMode mode = req.getForceMode();

@@ -43,4 +43,9 @@ openai:
 gcp:
   api:
     key: ${GCP_API_KEY}
-
+cloud:
+  aws:
+    s3:
+      bucket: your-s3-bucket-name  # 본인의 S3 버킷 이름을 입력하세요.
+    region:
+      static: ap-northeast-2      # 서울 리전을 사용합니다. (ap-northeast-2)
