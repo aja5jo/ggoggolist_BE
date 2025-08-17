@@ -1,8 +1,8 @@
 package group5.backend.controller.ai.openai;
 
 import group5.backend.domain.user.User;
-import group5.backend.dto.ai.AiPreviewResponse;
-import group5.backend.dto.ai.PopupAiCreateRequest;
+import group5.backend.dto.ai.response.AiPreviewResponse;
+import group5.backend.dto.ai.request.PopupAiCreateRequest;
 
 import group5.backend.service.ai.openai.PopupAuthoringService;
 import lombok.RequiredArgsConstructor;

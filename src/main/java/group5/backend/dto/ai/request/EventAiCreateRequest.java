@@ -1,7 +1,5 @@
-package group5.backend.dto.ai;
+package group5.backend.dto.ai.request;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import group5.backend.domain.user.Category;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import java.util.List;

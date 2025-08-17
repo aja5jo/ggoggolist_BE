@@ -17,17 +17,15 @@ public class OpenAiDiagController {
 
     private final WebClient openAiWebClient;
     private final OpenAiProperties props;
-
+    //gpt 사용 가능 확인
     @GetMapping
     public ResponseEntity<Map<String, Object>> ping() {
-        // 1) 모델 목록 조회
         Map models = openAiWebClient.get()
                 .uri("/models")
                 .retrieve()
                 .bodyToMono(Map.class)
                 .block(Duration.ofSeconds(10));
 
-        // 2) 초미니 채팅 스모크(토큰 최소)
         Map body = Map.of(
                 "model", props.getChatModel(),            // 예: gpt-4o-mini
                 "messages", List.of(
