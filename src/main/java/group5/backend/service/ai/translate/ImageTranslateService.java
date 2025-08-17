@@ -3,8 +3,6 @@ package group5.backend.service.ai.translate;
 import group5.backend.domain.lang.SupportedLanguage;
 import group5.backend.dto.translate.response.ImageTranslateResponse;
 import group5.backend.exception.gcp.ImageDownloadFailedException;
-import group5.backend.service.TranslationApiClient;
-import group5.backend.service.VisionApiClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

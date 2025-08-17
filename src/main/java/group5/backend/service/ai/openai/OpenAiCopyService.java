@@ -1,4 +1,4 @@
-package group5.backend.service.ai;
+package group5.backend.service.ai.openai;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import group5.backend.config.ai.OpenAiProperties;
@@ -31,12 +31,9 @@ public class OpenAiCopyService {
 
     /* ===================== 공개 API: 팝업 ===================== */
 
-    /** 팝업 전용(텍스트 전용) */
     public CopyResult generatePopupCopy(String title, String placeName, String category, String address, String introHint) {
         return generatePopupCopy(title, placeName, category, address, introHint, List.of());
     }
-
-    /** 팝업 전용(이미지 입력 포함) */
     public CopyResult generatePopupCopy(String title, String placeName, String category, String address, String introHint,
                                         List<String> imageUrls) {
         String system = buildPopupSystemPrompt();
@@ -45,13 +42,9 @@ public class OpenAiCopyService {
     }
 
     /* ===================== 공개 API: 이벤트 ===================== */
-
-    /** 이벤트 전용(텍스트 전용) */
     public CopyResult generateEventCopy(String title, String storeName, String category, String address, String storeIntroHint) {
         return generateEventCopy(title, storeName, category, address, storeIntroHint, List.of());
     }
-
-    /** 이벤트 전용(이미지 입력 포함) */
     public CopyResult generateEventCopy(String title, String storeName, String category, String address, String storeIntroHint,
                                         List<String> imageUrls) {
         String system = buildEventSystemPrompt();
@@ -60,7 +53,6 @@ public class OpenAiCopyService {
     }
 
     /* ===================== 프롬프트 빌더 ===================== */
-
     private String buildEventSystemPrompt() {
         return """
             너는 소상공인 **이벤트** 홍보 카피라이터다.
@@ -88,8 +80,9 @@ public class OpenAiCopyService {
     }
 
     /**
-     * 멀티모달 user 메시지 구성: 텍스트 + 이미지들(parts 배열)
+     * 멀티모달 user 메시지 구성: 텍스트 + 이미지들
      */
+
     private Object buildUserParts(String title, String placeOrStore, String category, String address, String hint, List<String> imageUrls) {
         String text = """
             [제목] %s
@@ -176,7 +169,7 @@ public class OpenAiCopyService {
         }
     }
 
-    /** choices[0].message.content 를 String으로 안전 추출 */
+    /** choices[0].message.content 를 안전 추출 */
     @SuppressWarnings("unchecked")
     private String extractAssistantContent(Map<?, ?> res) {
         Object choicesObj = res.get("choices");
@@ -189,7 +182,7 @@ public class OpenAiCopyService {
         return contentObj == null ? "" : String.valueOf(contentObj);
     }
 
-    /** ```json ... ``` 또는 ``` ... ``` 래핑 제거 + trim */
+    /** 래핑 제거 + trim */
     private static final Pattern FENCE = Pattern.compile("^\\s*```(?:json)?\\s*([\\s\\S]*?)\\s*```\\s*$", Pattern.CASE_INSENSITIVE);
 
     private String sanitizePossibleJson(String s) {

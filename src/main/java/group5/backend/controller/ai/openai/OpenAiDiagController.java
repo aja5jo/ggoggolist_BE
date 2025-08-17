@@ -1,4 +1,4 @@
-package group5.backend.controller;
+package group5.backend.controller.ai.openai;
 
 import group5.backend.config.ai.OpenAiProperties;
 import lombok.RequiredArgsConstructor;

@@ -1,5 +1,4 @@
-// group5.backend.service.ai.PopupAuthoringService.java
-package group5.backend.service.ai;
+package group5.backend.service.ai.openai;
 
 import group5.backend.domain.user.User;
 import group5.backend.dto.ai.PopupAiCreateRequest;
@@ -18,8 +17,6 @@ public class PopupAuthoringService {
 
     @Transactional(readOnly = true)
     public AiPreviewResponse previewCopy(User merchant, PopupAiCreateRequest req) {
-        if (merchant == null) throw new org.springframework.security.access.AccessDeniedException("로그인이 필요합니다.");
-
         List<String> images = (req.getImageUrls() == null || req.getImageUrls().isEmpty())
                 ? List.of() : req.getImageUrls();
 

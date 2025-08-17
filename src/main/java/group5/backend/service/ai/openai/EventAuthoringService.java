@@ -1,5 +1,4 @@
-// group5.backend.service.ai.EventAuthoringService.java
-package group5.backend.service.ai;
+package group5.backend.service.ai.openai;
 
 import group5.backend.domain.store.Store;
 import group5.backend.domain.user.User;
@@ -22,8 +21,6 @@ public class EventAuthoringService {
 
     @Transactional(readOnly = true)
     public AiPreviewResponse previewCopy(User merchant, EventAiCreateRequest req) {
-        if (merchant == null) throw new org.springframework.security.access.AccessDeniedException("로그인이 필요합니다.");
-
         Store store = storeRepository.findByOwnerId(merchant.getId())
                 .orElseThrow(() -> new NoSuchElementException("해당 사용자에 연결된 매장이 없습니다."));
 

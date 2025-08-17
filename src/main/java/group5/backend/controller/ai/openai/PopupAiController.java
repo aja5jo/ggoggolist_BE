@@ -1,11 +1,10 @@
-// group5.backend.controller.PopupAiController.java
-package group5.backend.controller;
+package group5.backend.controller.ai.openai;
 
 import group5.backend.domain.user.User;
 import group5.backend.dto.ai.AiPreviewResponse;
 import group5.backend.dto.ai.PopupAiCreateRequest;
 
-import group5.backend.service.ai.PopupAuthoringService;
+import group5.backend.service.ai.openai.PopupAuthoringService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
