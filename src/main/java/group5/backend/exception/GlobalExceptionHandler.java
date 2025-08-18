@@ -174,6 +174,11 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
+    @ExceptionHandler(TranslateFailedException.class)
+    public ResponseEntity<ApiResponse<?>> handleTranslateFailed(TranslateFailedException ex){
+        return buildErrorResponse(HttpStatus.BAD_GATEWAY,ex.getMessage());
+    }
+
     // 전역 예외 핸들러에 이미 있다면 유지, 없다면 추가
     @ExceptionHandler(org.springframework.web.reactive.function.client.WebClientResponseException.Forbidden.class)
     public ResponseEntity<?> handle403(org.springframework.web.reactive.function.client.WebClientResponseException.Forbidden e){

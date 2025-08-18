@@ -29,7 +29,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/translate")
+@RequestMapping("/api/translate/image")
 @Tag(name = "스마트 이미지 번역", description = "메뉴판 여부 자동 판별 + 강제 모드 지원")
 public class ImageTranslateController {
 
