@@ -38,10 +38,6 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     Page<Store> findByCategoryIn(List<Category> categories, Pageable pageable);
     List<Store> findByCategoryIn(List<Category> categories, Sort sort);
 
-    boolean existsByOwnerId(Long ownerId);
-
-    Optional<Store> findByOwnerId(Long ownerId);
-
     @Query("""
       select distinct s
       from Store s
