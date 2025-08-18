@@ -57,3 +57,6 @@ cloud:
       bucket: your-s3-bucket-name  # 본인의 S3 버킷 이름을 입력하세요.
     region:
       static: ap-northeast-2      # 서울 리전을 사용합니다. (ap-northeast-2)
+    credentials:
+      access-key: <IAM에서 발급받은 액세스키>
+      secret-key: <IAM에서 발급받은 시크릿키>
