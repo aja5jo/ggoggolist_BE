@@ -2,12 +2,10 @@ package group5.backend.dto.common.popup.response;
 
 
 import group5.backend.domain.popup.Popup;
-import group5.backend.dto.common.event.response.EventSummaryResponse;
 import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Data
 @Builder

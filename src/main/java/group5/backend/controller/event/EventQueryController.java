@@ -1,8 +1,10 @@
 package group5.backend.controller.event;
 
+
 import group5.backend.domain.user.User;
 import group5.backend.dto.category.response.CategoryFeedItemResponse;
 import group5.backend.dto.common.event.FilterType;
+import group5.backend.dto.common.event.response.EventDetailResponse;
 import group5.backend.dto.common.event.response.EventOverviewResponse;
 import group5.backend.dto.common.popup.response.PopupSummaryResponse;
 import group5.backend.response.ApiResponse;
@@ -16,9 +18,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+
+
 import java.util.List;
 
 @RestController
@@ -73,6 +79,18 @@ public class EventQueryController {
                         popupService.getThisWeekPopups(userId))
         );
     }
+
+    @GetMapping("/event/{eventId}")
+    @Transactional(readOnly = true) // (3) 읽기 전용 트랜잭션
+    public ResponseEntity<ApiResponse<EventDetailResponse>> getEventDetail(
+            @PathVariable Long eventId,
+            @AuthenticationPrincipal User loginUser   // (1) 로그인 사용자 주입
+    ) {
+        Long userId = (loginUser == null) ? null : loginUser.getId();
+        var data = eventQueryService.getEventDetail(eventId, userId); // (2) 오버로드 호출
+        return ResponseEntity.ok(new ApiResponse<>(true, 200, "이벤트 상세 정보 조회 성공", data));
+    }
+
 }
 
 

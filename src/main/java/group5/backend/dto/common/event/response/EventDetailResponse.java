@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 @Data
 public class EventDetailResponse {
-    private Integer id;
+    private Long id;
     private String name;
     private String description;
     private String intro;
@@ -23,8 +23,7 @@ public class EventDetailResponse {
     private LocalTime startTime;
     private LocalTime endTime;
 
-    private Boolean isPopup;
-    private Integer likeCount;
+    private int likeCount;
     private boolean liked;
     private StoreSimpleDto store;
 

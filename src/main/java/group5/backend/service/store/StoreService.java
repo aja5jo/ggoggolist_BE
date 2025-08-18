@@ -15,6 +15,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class StoreService {
@@ -113,7 +115,7 @@ public class StoreService {
                 .intro(s.getIntro())
                 .category(s.getCategory() != null ? s.getCategory().name() : null)
                 .thumbnail(s.getThumbnail())
-                .images(s.getImages() != null && !s.getImages().isEmpty() ? String.join(",", s.getImages()) : null)
+                .images(s.getImages() != null ? s.getImages() : List.of())
                 .startTime(s.getStartTime())
                 .endTime(s.getEndTime())
                 .likeCount(s.getLikeCount())

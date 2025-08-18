@@ -113,5 +113,13 @@ public interface PopupRepository extends JpaRepository<Popup, Long> {
     List<Popup> findThisWeek(@Param("startOfWeek") LocalDate startOfWeek,
                              @Param("endOfWeek") LocalDate endOfWeek,
                              Sort sort);
+    @Query("""
+      select distinct p
+      from Popup p
+      left join fetch p.images imgs   
+      left join fetch p.user u       
+      where p.id = :id
+      """)
+    Optional<Popup> findDetailById(@Param("id") Long id);
 
 }

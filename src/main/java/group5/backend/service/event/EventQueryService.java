@@ -5,8 +5,10 @@ import group5.backend.domain.popup.Popup;
 import group5.backend.dto.category.FeedItemType;
 import group5.backend.dto.category.response.CategoryFeedItemResponse;
 import group5.backend.dto.common.event.FilterType;
+import group5.backend.dto.common.event.response.EventDetailResponse;
 import group5.backend.dto.common.event.response.EventOverviewResponse;
 import group5.backend.dto.common.event.response.MixedFeedListResponse;
+import group5.backend.exception.event.EventNotFoundException;
 import group5.backend.exception.event.HandleInvalidFilterException;
 import group5.backend.repository.EventRepository;
 import group5.backend.repository.FavoriteEventRepository;
@@ -211,5 +213,62 @@ public class EventQueryService {
                 .collect(Collectors.joining(", "));
         return "유효하지 않은 필터 값입니다. (" + allowed + " 중 하나)";
     }
+
+    /* ======================= 수민- 이벤트 디테일 반환 ======================= */
+
+    @Transactional(readOnly = true)
+    public EventDetailResponse getEventDetail(Long eventId, @Nullable Long userId) {
+        // 1) fetch-join 메서드로 단건 로딩
+        Event e = eventRepository.findDetailById(eventId)
+                .orElseThrow(() -> new EventNotFoundException(eventId, "해당 ID의 이벤트를 찾을 수 없습니다."));
+
+        // 2) liked 계산 (비로그인 안전)
+        boolean liked = (userId != null) && favoriteEventRepository.existsByUserIdAndEventId(userId, eventId);
+
+        // 3) 이미지 널 가드
+        List<String> images = (e.getImages() != null) ? e.getImages() : List.of();
+
+        // 4) 스토어 널 가드
+        var store = e.getStore();
+        EventDetailResponse.StoreSimpleDto storeDto = null;
+        if (store != null) {
+            storeDto = EventDetailResponse.StoreSimpleDto.builder()
+                    .storeId(store.getId())
+                    .storeName(store.getName())
+                    .address(store.getAddress())
+                    .phone(store.getNumber())
+                    .storeImageUrl(store.getThumbnail())
+                    .build();
+        }
+
+        // 5) DTO 조립 (시간/문자열은 그대로 null 허용)
+        return EventDetailResponse.builder()
+                .id(e.getId())
+                .name(e.getName())
+                .description(e.getDescription())
+                .intro(e.getIntro())
+                .thumbnail(e.getThumbnail())
+                .images(images)
+                .startDate(e.getStartDate())
+                .endDate(e.getEndDate())
+                .startTime(e.getStartTime())
+                .endTime(e.getEndTime())
+                .likeCount(e.getLikeCount())
+                .liked(liked)
+                .store(storeDto)
+                .build();
+    }
+
+
+    private List<String> parseImages(String images) {
+        if (images == null || images.isBlank()) return List.of();
+        if (!images.contains(",")) return List.of(images.trim());
+        return Arrays.stream(images.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .toList();
+    }
+
+
 }
 

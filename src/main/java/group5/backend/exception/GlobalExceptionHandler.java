@@ -1,9 +1,12 @@
 package group5.backend.exception;
 
 import group5.backend.domain.user.Category;
+import group5.backend.exception.event.EventNotFoundException;
 import group5.backend.exception.event.HandleInvalidFilterException;
 import group5.backend.exception.favorite.FavoriteNotFoundException;
 import group5.backend.exception.gcp.*;
+import group5.backend.exception.popup.PopupNotFoundException;
+import group5.backend.exception.store.StoreNotFoundException;
 import group5.backend.response.ApiResponse;
 import group5.backend.exception.category.MerchantInvalidCategorySizeException;
 import group5.backend.exception.category.UserInvalidCategorySizeException;
@@ -102,6 +105,23 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HandleInvalidFilterException.class)
     public ResponseEntity<ApiResponse<?>> handleInvalidFilter(HandleInvalidFilterException e) {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+    //가게 없음
+    @ExceptionHandler(StoreNotFoundException.class)
+    public ResponseEntity<ApiResponse<?>> handleStoreNotFound(StoreNotFoundException e) {
+        return buildErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
+    }
+
+    //이벤트 없음
+    @ExceptionHandler(EventNotFoundException.class)
+    public ResponseEntity<group5.backend.response.ApiResponse<?>> handleEventNotFound(
+            EventNotFoundException e) {
+        return buildErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
+    }
+    //팝업없음
+    @ExceptionHandler(PopupNotFoundException.class)
+    public ResponseEntity<ApiResponse<?>> handlePopupNotFound(PopupNotFoundException e) {
+        return buildErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
     }
 
     //api key 관련 예외

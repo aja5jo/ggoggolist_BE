@@ -41,7 +41,12 @@ public class UserCategoryController {
                 .body(new ApiResponse(true, 200, "카테고리 토글 성공", response));
     }
 
-    /*@Secured("USER")
+    @Secured("USER")
+    @Operation(
+            summary = "관심 카테고리 목록 조회",
+            description = "현재 로그인한 사용자의 관심 카테고리 목록을 조회합니다.",
+            security = @SecurityRequirement(name = "JSESSIONID")
+    )
     @GetMapping
     public ResponseEntity<ApiResponse<CategoryListResponse>> getUserCategories(
             @AuthenticationPrincipal User loginUser
@@ -50,5 +55,5 @@ public class UserCategoryController {
         return ResponseEntity.ok(
                 new ApiResponse<>(true, 200, "카테고리 조회 성공", response)
         );
-    }*/
+    }
 }
