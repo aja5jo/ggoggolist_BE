@@ -9,6 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+
 import java.util.List;
 import java.util.Optional;
 
@@ -49,4 +50,7 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
       where s.id = :id
       """)
     Optional<Store> findDetailById(@Param("id") Long id);
+
+    // 이름 부분일치(대소문자 무시)
+    List<Store> findByNameContainingIgnoreCase(String keyword, Sort sort);
 }

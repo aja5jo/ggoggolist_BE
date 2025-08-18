@@ -141,4 +141,14 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             Pageable pageable
     );
 
+    // 이름 부분일치(대소문자 무시) + 진행중 필터(startDate<=today<=endDate)
+    List<Event> findByNameContainingIgnoreCaseAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+            String keyword,
+            LocalDate startLte,
+            LocalDate endGte,
+            Sort sort
+    );
+
+
+
 }
