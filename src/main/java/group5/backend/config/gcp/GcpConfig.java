@@ -20,13 +20,4 @@ public class GcpConfig {
                 .connectTimeout(Duration.ofSeconds(10))
                 .build();
     }
-
-    // ObjectMapper 빈 설정
-    @Bean
-    public ObjectMapper objectMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        // Java 8 시간/날짜 타입(LocalDate 등)을 처리하는 모듈 등록
-        objectMapper.registerModule(new JavaTimeModule());
-        return objectMapper;
-    }
 }
