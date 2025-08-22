@@ -122,4 +122,10 @@ public interface PopupRepository extends JpaRepository<Popup, Long> {
       """)
     Optional<Popup> findDetailById(@Param("id") Long id);
 
+
+    @Query("SELECT p FROM Popup p WHERE p.startDate <= :today AND p.endDate >= :today")
+    List<Popup> findOngoing(@Param("today") LocalDate today);
+
+    @Query("SELECT p FROM Popup p WHERE p.startDate <= :today AND p.endDate >= :today ORDER BY p.likeCount DESC, p.id DESC")
+    List<Popup> findTopOngoingByLike(@Param("today") LocalDate today, Pageable pageable);
 }

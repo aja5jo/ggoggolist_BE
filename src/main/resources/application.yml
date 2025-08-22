@@ -4,12 +4,16 @@ spring:
   profiles:
     active: local
 
+  webclient:
+    timeout: 30000 # 30초 (기본값 5초)
+
   datasource:
     url: jdbc:mysql://localhost:3306/backend # 테이블 이름
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${DB_USERNAME} # .env에 등록된 username
     password: ${DB_PASSWORD} # .env에 등록된 password
-
+    hikari:
+      read-only: false # 데이터 추가할수있도록 수정
   jpa:
     hibernate:
       ddl-auto: create  # 초기에는 create, 배포 전 update로 변경
@@ -27,24 +31,26 @@ data:
 app:
   cors:
     allowed-origins:
-      - http://localhost:3000   # FE 로컬 주소
+      - http://localhost:5173   # FE 로컬 주소
 
 server:
   servlet:
     session:
       cookie:
         name: JSESSIONID
-        same-site: None
+        same-site: Lax
         secure: false           # 로컬(http)에서는 false, 배포 시 true로 변경
 
 openai:
   base-url: https://api.openai.com/v1
   api-key: ${OPENAI_API_KEY}
   chat-model: gpt-4o-mini
-#  image-model: dall-e-3
+  #  image-model: dall-e-3
   timeout-sec: 30
   max-retries: 3
   initial-backoff-ms: 1000
+  embedding-model: text-embedding-3-small #추가
+  embedding-dim: 1536     #추가
 assets:
   cdn-base: https://cdn.example.com/        # 배너 이미지 업로드했다면 반환 경로(옵션)
 
@@ -54,9 +60,14 @@ gcp:
 cloud:
   aws:
     s3:
-      bucket: your-s3-bucket-name  # 본인의 S3 버킷 이름을 입력하세요.
+      bucket: S3_BUCKET  # 본인의 S3 버킷 이름을 입력하세요.
     region:
       static: ap-northeast-2      # 서울 리전을 사용합니다. (ap-northeast-2)
     credentials:
-      access-key: <IAM에서 발급받은 액세스키>
-      secret-key: <IAM에서 발급받은 시크릿키>
+      access-key: <AWS_S3_ACCESS_KEY>
+      secret-key: <AWS_S3_SECRET_KEY>
+
+#이따가 실행 잘되면 지우기
+logging:
+  level:
+    group5.backend: DEBUG

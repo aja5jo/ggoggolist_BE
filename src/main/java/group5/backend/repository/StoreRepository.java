@@ -45,4 +45,8 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
 
     // 이름 부분일치(대소문자 무시)
     List<Store> findByNameContainingIgnoreCase(String keyword, Sort sort);
+
+    @Query(value = "SELECT s FROM Store s ORDER BY s.likeCount DESC, s.id DESC limit :n", nativeQuery = true)
+    List<Store> findTopNByOrderByLikeCountDescIdDesc(@Param("n") int n);
+
 }
