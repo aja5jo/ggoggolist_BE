@@ -145,4 +145,11 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             Sort sort
     );
 
+    @Query("SELECT e FROM Event e WHERE e.startDate <= :today AND e.endDate >= :today")
+    List<Event> findOngoing(@Param("today") LocalDate today);
+
+    @Query("SELECT e FROM Event e WHERE e.startDate <= :today AND e.endDate >= :today ORDER BY e.likeCount DESC, e.id DESC")
+    List<Event> findTopOngoingByLike(@Param("today") LocalDate today, Pageable pageable);
+
+
 }

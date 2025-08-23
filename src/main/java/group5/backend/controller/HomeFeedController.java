@@ -22,7 +22,7 @@ public class HomeFeedController {
 
     @Operation(summary = "홈 미리보기(6개)", description = "가게/이벤트/팝업 섞어서 likeCount desc, id desc로 6개 반환. 로그인 시 liked 반영")
     @GetMapping("/home")
-    @Transactional(readOnly = true)
+    @Transactional()
     public ResponseEntity<ApiResponse<List<CategoryFeedItemResponse>>> homePreview(
             @AuthenticationPrincipal User loginUser
     ) {
@@ -33,7 +33,7 @@ public class HomeFeedController {
 
     @Operation(summary = "홈 더보기(18개)", description = "가게/이벤트/팝업 섞어서 likeCount desc, id desc로 18개 반환. 로그인 시 liked 반영")
     @GetMapping("/home/detail")
-    @Transactional(readOnly = true)
+    @Transactional()
     public ResponseEntity<ApiResponse<List<CategoryFeedItemResponse>>> homeDetail(
             @AuthenticationPrincipal User loginUser
     ) {

@@ -4,12 +4,16 @@ spring:
   profiles:
     active: local
 
+  webclient:
+    timeout: 30000 # 30초 (기본값 5초)
+
   datasource:
     url: ${DB_URL} # 테이블 이름
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${DB_USERNAME} # .env에 등록된 username
     password: ${DB_PASSWORD} # .env에 등록된 password
-
+    hikari:
+      read-only: false # 데이터 추가할수있도록 수정
   jpa:
     hibernate:
       ddl-auto: create  # 초기에는 create, 배포 전 update로 변경
@@ -45,6 +49,8 @@ openai:
   timeout-sec: 30
   max-retries: 3
   initial-backoff-ms: 1000
+  embedding-model: text-embedding-3-small #추가
+  embedding-dim: 1536     #추가
 assets:
   cdn-base: https://cdn.example.com/        # 배너 이미지 업로드했다면 반환 경로(옵션)
 
@@ -61,3 +67,7 @@ cloud:
   aws:
     s3:
       bucket: ${S3_BUCKET}
+logging:
+  level:
+    group5.backend: DEBUG
+
