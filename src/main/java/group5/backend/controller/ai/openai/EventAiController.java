@@ -16,7 +16,7 @@ import jakarta.validation.Valid;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/merchants/stores/events")
-@PreAuthorize("hasAuthority('MERCHANT')")
+// @PreAuthorize("hasAuthority('MERCHANT')")
 public class EventAiController {
 
     private final EventAuthoringService authoringService;

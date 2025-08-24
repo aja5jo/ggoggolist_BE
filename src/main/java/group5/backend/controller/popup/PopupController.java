@@ -22,7 +22,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/merchants/popups")
-@PreAuthorize("hasAuthority('MERCHANT')")
+// @PreAuthorize("hasAuthority('MERCHANT')")
 @Tag(name = "소상공인: 팝업 관리", description = "소상공인의 팝업 CRUD")
 public class PopupController {
 

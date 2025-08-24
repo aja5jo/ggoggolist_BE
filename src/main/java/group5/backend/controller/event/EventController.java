@@ -23,7 +23,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/merchants/stores/events")
-@PreAuthorize("hasAuthority('MERCHANT')")
+// @PreAuthorize("hasAuthority('MERCHANT')")
 @Tag(name = "소상공인: 이벤트 관리", description = "소상공인의 이벤트 CRUD")
 public class EventController {
 

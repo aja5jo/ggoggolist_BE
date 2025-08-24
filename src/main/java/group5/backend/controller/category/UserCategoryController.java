@@ -24,7 +24,6 @@ public class UserCategoryController {
 
     private final UserCategoryService userCategoryService;
 
-    @Secured("USER")
     @Operation(
             summary = "관심 카테고리 토글",
             description = "현재 로그인한 사용자의 관심 카테고리를 선택 또는 해제합니다.",
@@ -41,7 +40,6 @@ public class UserCategoryController {
                 .body(new ApiResponse(true, 200, "카테고리 토글 성공", response));
     }
 
-    @Secured("USER")
     @Operation(
             summary = "관심 카테고리 목록 조회",
             description = "현재 로그인한 사용자의 관심 카테고리 목록을 조회합니다.",

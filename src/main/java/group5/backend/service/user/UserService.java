@@ -12,9 +12,12 @@ import group5.backend.exception.signup.DuplicateEmailException;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -48,19 +51,26 @@ public class UserService {
             throw new WrongPasswordException("비밀번호가 일치하지 않습니다.");
         }
 
-        // ✅ Spring Security 인증 객체 생성
-        UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(user, null,
-                        List.of(new SimpleGrantedAuthority(user.getRole().name())));
+        // 1) 인증 객체
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                user,                         // principal: 도메인 User 사용 중이면 그대로 OK
+                null,
+                List.of(new SimpleGrantedAuthority(user.getRole().name())) // "USER" / "MERCHANT"
+        );
 
-        // ✅ SecurityContext에 인증 정보 등록
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        // 2) SecurityContext 생성/등록
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(authentication);
+        SecurityContextHolder.setContext(context);
 
-        // ✅ 세션에도 저장 (로그아웃 핸들러에서 필요)
-        session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
+        // 3) 세션에 표준 키로 저장 (★ 중요)
+        session.setAttribute(
+                HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                context
+        );
 
+        // 4) 응답
         return LoginResponse.of(user);
     }
-
 
 }

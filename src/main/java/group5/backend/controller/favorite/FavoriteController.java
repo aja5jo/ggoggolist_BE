@@ -24,7 +24,6 @@ public class FavoriteController {
     private final FavoriteService favoriteService;
 
     // 가게 즐겨찾기 토글
-    @Secured("USER") // USER 권한을 가진 사용자만 접근 가능
     @PostMapping("/stores/{storeId}/favorites")
     @Operation(summary = "Toggle store favorite", description = "Toggle the favorite status of a store for a user.")
     public ResponseEntity<ApiResponse<FavoriteResponse>> toggleStoreFavorite(
@@ -44,7 +43,6 @@ public class FavoriteController {
     }
 
     // 이벤트 즐겨찾기 토글
-    @Secured("USER")  // USER 권한을 가진 사용자만 접근 가능
     @PostMapping("/events/{eventId}/favorites")
     @Operation(summary = "Toggle event favorite", description = "Toggle the favorite status of an event for a user.")
     public ResponseEntity<ApiResponse<FavoriteResponse>> toggleEventFavorite(
@@ -64,7 +62,6 @@ public class FavoriteController {
     }
 
     // 팝업 즐겨찾기 토글
-    @Secured("USER")  // USER 권한을 가진 사용자만 접근 가능
     @PostMapping("/popups/{popupId}/favorites")
     @Operation(summary = "Toggle popup favorite", description = "Toggle the favorite status of a popup for a user.")
     public ResponseEntity<ApiResponse<FavoriteResponse>> togglePopupFavorite(
@@ -83,7 +80,6 @@ public class FavoriteController {
         return ResponseEntity.ok(apiResponse);
     }
     // 유저의 전체 즐겨찾기 목록 조회
-    @Secured("USER")  // USER 권한을 가진 사용자만 접근 가능
     @GetMapping("/favorites")
     @Operation(summary = "Get all favorites", description = "Get all the favorite stores, events, and popups of a user.")
     public ResponseEntity<ApiResponse<List<FavoriteResponse>>> getAllFavorites(

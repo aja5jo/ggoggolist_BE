@@ -23,7 +23,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/merchants/stores")
-@PreAuthorize("hasAuthority('MERCHANT')")
+// @PreAuthorize("hasAuthority('MERCHANT')")
 @Tag(name = "소상공인: 가게 관리", description = "소상공인의 가게 CRUD")
 public class StoreController {
 

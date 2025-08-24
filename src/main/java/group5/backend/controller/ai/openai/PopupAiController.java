@@ -16,7 +16,7 @@ import jakarta.validation.Valid;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/merchants/popups")
-@PreAuthorize("hasAuthority('MERCHANT')")
+// @PreAuthorize("hasAuthority('MERCHANT')")
 public class PopupAiController {
 
     private final PopupAuthoringService authoringService;
