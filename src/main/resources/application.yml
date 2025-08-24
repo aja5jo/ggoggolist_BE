@@ -8,7 +8,7 @@ spring:
     timeout: 30000 # 30초 (기본값 5초)
 
   datasource:
-    url: ${DB_URL} # 테이블 이름
+    url: jdbc:mysql://localhost:3306/backend # 테이블 이름
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${DB_USERNAME} # .env에 등록된 username
     password: ${DB_PASSWORD} # .env에 등록된 password
@@ -38,8 +38,11 @@ server:
     session:
       cookie:
         name: JSESSIONID
-        same-site: None
-        secure: false           # 로컬(http)에서는 false, 배포 시 true로 변경
+        same-site: none   # SameSite=None
+        secure: true      # Secure 플래그 강제
+        http-only: true
+  forward-headers-strategy: framework
+           # 로컬(http)에서는 false, 배포 시 true로 변경
 
 openai:
   base-url: https://api.openai.com/v1

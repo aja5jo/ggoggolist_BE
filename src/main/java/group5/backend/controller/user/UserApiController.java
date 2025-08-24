@@ -1,4 +1,3 @@
-
 package group5.backend.controller.user;
 import group5.backend.dto.login.request.LoginRequest;
 import group5.backend.dto.login.response.LoginResponse;
@@ -9,6 +8,7 @@ import group5.backend.service.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -39,10 +39,16 @@ public class UserApiController {
             security = @SecurityRequirement(name = "JSESSIONID")
     )
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse> login(@Valid @RequestBody LoginRequest request, HttpSession session) {
+    public ResponseEntity<ApiResponse> login(
+            @Valid @RequestBody LoginRequest request,
+            HttpSession session,
+            HttpServletRequest httpRequest // ★ 추가
+    ) {
         LoginResponse response = userService.login(request, session);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new ApiResponse(true, 200, "로그인 성공", response));
+
+        httpRequest.changeSessionId();    // ★ 추가: Set-Cookie 재발급 + 세션 고정 방지
+
+        return ResponseEntity.ok(new ApiResponse(true, 200, "로그인 성공", response));
     }
 
 }

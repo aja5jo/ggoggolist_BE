@@ -101,9 +101,7 @@ public class FavoriteController {
                 "전체 즐겨찾기 목록 조회 성공",
                 response
         );
-
         log.info("전체 즐겨찾기 목록 조회 응답: {}", apiResponse);
         return ResponseEntity.ok(apiResponse);
     }
-
 }

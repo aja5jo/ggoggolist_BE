@@ -3,9 +3,12 @@ package group5.backend.config.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import group5.backend.response.ApiResponse;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authentication.ProviderManager;
@@ -15,6 +18,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.Customizer;
@@ -52,6 +56,7 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
+
                 .cors(Customizer.withDefaults())              // ✅ CORS를 Security 필터에 연결
                 .csrf(csrf -> csrf.disable())                 // 개발 단계면 비활성 유지 OK
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)) // ✅ 추가
@@ -75,34 +80,40 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/**").permitAll()
                         .anyRequest().authenticated()
                 )
-
                 .logout(logout -> logout
                         .logoutUrl("/api/logout")
                         .addLogoutHandler((request, response, authentication) -> {
-                            if (authentication == null) {
-                                throw new InsufficientAuthenticationException("로그인이 되어 있지 않습니다.");
-                            }
+                            // 세션 무효화 + 시큐리티 컨텍스트 정리 (인증 여부와 무관하게 안전)
+                            HttpSession session = request.getSession(false);
+                            if (session != null) session.invalidate();
+                            SecurityContextHolder.clearContext();
                         })
                         .logoutSuccessHandler((request, response, authentication) -> {
+                            // JSESSIONID 쿠키 삭제 (Secure + SameSite=None + HttpOnly)
+                            ResponseCookie bye = ResponseCookie.from("JSESSIONID", "")
+                                    .path("/")
+                                    .maxAge(0)
+                                    .httpOnly(true)
+                                    .secure(true)       // ★ HTTPS 쿠키만 전송
+                                    .sameSite("None")   // ★ 크로스사이트에서도 동작
+                                    .build();
+                            response.setHeader(HttpHeaders.SET_COOKIE, bye.toString());
+
+                            // 응답 JSON
                             response.setContentType("application/json");
                             response.setCharacterEncoding("UTF-8");
                             response.setStatus(HttpServletResponse.SC_OK);
 
-                            // 🔥 JSESSIONID 쿠키 삭제
-                            Cookie cookie = new Cookie("JSESSIONID", null);
-                            cookie.setPath("/");
-                            cookie.setMaxAge(0);
-                            response.addCookie(cookie);
-
-                            ApiResponse<?> logoutResponse = new ApiResponse<>(true, 200, "로그아웃 성공", null);
-                            ObjectMapper objectMapper = new ObjectMapper();
-                            response.getWriter().write(objectMapper.writeValueAsString(logoutResponse));
+                            ApiResponse<?> body = new ApiResponse<>(true, 200, "로그아웃 성공", null);
+                            new ObjectMapper().writeValue(response.getWriter(), body);
                         })
-                        .invalidateHttpSession(true)
+                        .invalidateHttpSession(true)   // 기본 핸들러도 세션 무효화 (중복 무해)
+                        .clearAuthentication(true)
+                        .permitAll()                   // 비로그인 상태에서도 호출 가능하게
                 )
+
                 .build();
     }
-
 
     // 인증 관리자 설정
     @Bean
@@ -115,7 +126,6 @@ public class WebSecurityConfig {
         authProvider.setPasswordEncoder(bCryptPasswordEncoder);
         return new ProviderManager(authProvider);
     }
-
 
     // 비밀번호 인코더 빈 등록
     @Bean

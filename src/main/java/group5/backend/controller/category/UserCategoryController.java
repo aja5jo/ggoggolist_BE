@@ -1,5 +1,4 @@
 package group5.backend.controller.category;
-
 import group5.backend.domain.user.Category;
 import group5.backend.domain.user.User;
 import group5.backend.dto.category.response.CategoryListResponse;
@@ -19,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/users/categories")
-@Tag(name = "유저: 카테고리 토글", description = "유저의 관심 있는 카테고리 등록/해제")
+@Tag(name = "유저 및 소상공인: 카테고리 토글 및 조회", description = "관심 있는 카테고리 등록/해제/조회")
 public class UserCategoryController {
 
     private final UserCategoryService userCategoryService;
