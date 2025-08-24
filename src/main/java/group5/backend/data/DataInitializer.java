@@ -11,6 +11,7 @@ import group5.backend.repository.EventRepository;
 import group5.backend.repository.PopupRepository;
 import group5.backend.repository.StoreRepository;
 import group5.backend.repository.UserRepository;
+import group5.backend.service.ai.recomm.EmbeddingPreloadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -39,6 +40,7 @@ public class DataInitializer implements ApplicationRunner {
     private final EventRepository eventRepository;
     private final PopupRepository popupRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmbeddingPreloadService embeddingPreloadService;
 
     @PersistenceContext
     private EntityManager em;
@@ -166,6 +168,8 @@ public class DataInitializer implements ApplicationRunner {
                 em.clear();
             }
         }
+        // 데이터 초기화 후 임베딩 미리 로드
+        embeddingPreloadService.preloadData();
 
         em.flush();
         em.clear();

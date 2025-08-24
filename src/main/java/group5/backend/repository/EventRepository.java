@@ -24,7 +24,8 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     //List<Event> findByStore(Store store);
 
     List<Event> findByStoreId(Long storeId);
-
+    @Query("SELECT e.id FROM Event e")
+    List<Long> findAllEventIds(); // 모든 이벤트의 ID 반환
     // 특정 Store 내에서 이름이 같은 Event 조회
     Optional<Event> findByStoreAndName(Store store, String name);
     @Query("""

@@ -107,7 +107,7 @@ public class RankingService {
     }
 
     /** 후보 중 임베딩 없는 아이템은 즉시 생성 후 저장 */
-    private void hydrateMissingEmbeddings(List<ItemCandidate> candidates) {
+    public void hydrateMissingEmbeddings(List<ItemCandidate> candidates) {
         if (candidates == null || candidates.isEmpty()) return;
 
         Map<ItemType, List<Long>> idsByType = new EnumMap<>(ItemType.class);

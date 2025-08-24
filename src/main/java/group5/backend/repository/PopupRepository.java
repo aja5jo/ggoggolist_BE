@@ -17,7 +17,8 @@ public interface PopupRepository extends JpaRepository<Popup, Long> {
 
     /* ========== 기본 ========== */
     List<Popup> findByUserId(Long userId);
-
+    @Query("SELECT p.id FROM Popup p")
+    List<Long> findAllPopupIds(); // 모든 팝업의 ID 반환
     Optional<Popup> findByUserAndName(User user, String name);
     void deleteByEndDateBefore(LocalDate date);
     /* ========== 카테고리 + 진행중 (inclusive) ========== */
