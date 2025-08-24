@@ -31,7 +31,10 @@ data:
 app:
   cors:
     allowed-origins:
-      - "*"
+      - https://hackathon5fe.vercel.app
+      - http://localhost:5173
+
+      
 
 server:
   servlet:
@@ -39,7 +42,9 @@ server:
       cookie:
         name: JSESSIONID
         same-site: None
-        secure: false           # 로컬(http)에서는 false, 배포 시 true로 변경
+        secure: true
+        http-only: true
+  forward-headers-strategy: native
 
 openai:
   base-url: https://api.openai.com/v1
