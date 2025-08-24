@@ -31,10 +31,9 @@ data:
 app:
   cors:
     allowed-origins:
-      - http://localhost:3000   # FE 로컬 주소
+      - "*"
 
 server:
-  port: 8081
   servlet:
     session:
       cookie:
@@ -53,7 +52,7 @@ openai:
   embedding-model: text-embedding-3-small #추가
   embedding-dim: 1536     #추가
 assets:
-  cdn-base: https://cdn.example.com/        # 배너 이미지 업로드했다면 반환 경로(옵션)
+  cdn-base: https://cdn.example.com/
 
 gcp:
   api:

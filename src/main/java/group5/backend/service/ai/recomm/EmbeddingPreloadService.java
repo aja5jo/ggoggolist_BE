@@ -2,25 +2,15 @@ package group5.backend.service.ai.recomm;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import group5.backend.config.ai.OpenAiProperties;
-import group5.backend.domain.event.Event;
-import group5.backend.domain.popup.Popup;
-import group5.backend.domain.store.Store;
-import group5.backend.domain.recomm.ItemEmbedding;
 import group5.backend.domain.recomm.ItemType;
 import group5.backend.repository.*;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import org.springframework.boot.ApplicationRunner;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 
 @Slf4j
