@@ -30,7 +30,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @Component
 @RequiredArgsConstructor
-@Profile("local") // 로컬에서만 동작
 public class DataInitializer implements ApplicationRunner {
 
     private final UserRepository userRepository;
@@ -345,8 +344,143 @@ public class DataInitializer implements ApplicationRunner {
                     "향수 페어", "신상 니치 향수 라인업 공개",
                     "시향 고객 대상 샘플 증정",
                     "event", Category.SHOPPING
+            ),
+            // 34) FOOD_6 → 한식 비빔밥
+            new SeedData(
+                    "https://aja5jo-image.s3.ap-northeast-2.amazonaws.com/public/stores/2025-08-25/0c107bb5-451d-480f-8e9c-0d86cbde0e8d.png",
+                    "한식 비빔밥 하우스", "전통 나물과 매콤한 고추장 조합",
+                    "비빔밥 페스티벌", "다양한 나물과 신선한 재료로 만든 비빔밥",
+                    "비빔밥 주문 시 계란후라이 무료 추가",
+                    "event", Category.FOOD
+            ),
+
+// 35) FOOD_7 → 브라질 슈하스코
+            new SeedData(
+                    "https://aja5jo-image.s3.ap-northeast-2.amazonaws.com/public/stores/2025-08-25/4ef81623-5209-4a88-b85b-7497f694eaac.png",
+                    "브라질 슈하스코 그릴", "숯불에 구운 정통 브라질 바비큐",
+                    "슈하스코 무한리필 데이", "쇠고기·닭고기·소시지 풀코스",
+                    "평일 런치 한정 무제한 제공",
+                    "event", Category.FOOD
+            ),
+
+// 36) FOOD_8 → 멕시칸 타코
+            new SeedData(
+                    "https://aja5jo-image.s3.ap-northeast-2.amazonaws.com/public/stores/2025-08-25/fa787f0d-2bd5-4ff6-8e22-049e100cbc4d.png",
+                    "타코 하우스", "정통 멕시칸 타코 전문점",
+                    "멕시칸 타코 나잇", "소고기·새우·아보카도 타코",
+                    "3개 세트 주문 시 멕시칸 소다 무료",
+                    "event", Category.FOOD
+            ),
+
+// 37) FOOD_9 → 인도 커리
+            new SeedData(
+                    "https://aja5jo-image.s3.ap-northeast-2.amazonaws.com/public/stores/2025-08-25/6530e4a5-1811-4e6d-acfb-276b978467a8.png",
+                    "인도 커리 하우스", "탄두리와 난을 곁들인 인도 전통 요리",
+                    "커리&난 스페셜", "다양한 커리와 갓 구운 난",
+                    "커리 주문 고객 난 1개 무제한 제공",
+                    "event", Category.FOOD
+            ),
+
+// 38) FOOD_10 → 라멘
+            new SeedData(
+                    "https://aja5jo-image.s3.ap-northeast-2.amazonaws.com/public/stores/2025-08-25/14b9faef-6e25-4885-9a37-ba68fe3653f0.png",
+                    "라멘 전문점", "정통 일본식 라멘 하우스",
+                    "라멘 위크", "돈코츠·쇼유·미소 라멘 풀 라인업",
+                    "추가 토핑 무료 행사 진행",
+                    "event", Category.FOOD
+            ),
+
+// 39) CAFE_4 → 디저트 카페
+            new SeedData(
+                    "https://aja5jo-image.s3.ap-northeast-2.amazonaws.com/public/stores/2025-08-25/55b72874-1e2a-4b05-8888-49789d8a33bd.png",
+                    "스윗 디저트 카페", "티라미수와 홈메이드 케이크 전문점",
+                    "티라미수 스페셜", "직접 만든 홈메이드 티라미수",
+                    "아메리카노와 세트 구매 시 할인",
+                    "event", Category.CAFE
+            ),
+
+// 40) CAFE_5 → 루프탑 카페
+            new SeedData(
+                    "https://aja5jo-image.s3.ap-northeast-2.amazonaws.com/public/stores/2025-08-25/af38e5b3-9977-4eac-925c-28452263d04e.png",
+                    "루프탑 카페", "노을과 야경을 즐길 수 있는 공간",
+                    "루프탑 선셋 이벤트", "노을 보며 즐기는 라떼",
+                    "18–20시 방문 고객 와인 서비스",
+                    "event", Category.CAFE
+            ),
+
+// 41) CAFE_6 → 북카페
+            new SeedData(
+                    "https://aja5jo-image.s3.ap-northeast-2.amazonaws.com/public/stores/2025-08-25/98f13b7f-c052-48c4-8c51-c54c4b62f302.png",
+                    "빈티지 북카페", "책과 커피가 함께하는 아늑한 공간",
+                    "북카페 북토크", "독서 모임 & 라떼 클래스",
+                    "참가자에게 도서 할인 쿠폰 제공",
+                    "event", Category.CAFE
+            ),
+
+// 42) POPUP_9 → 레고 팝업
+            new SeedData(
+                    "https://aja5jo-image.s3.ap-northeast-2.amazonaws.com/public/stores/2025-08-25/77956977-62a7-45b7-bdc4-2df998b59b71.png",
+                    "레고 팝업 스토어", "레고 신제품 전시와 체험 공간",
+                    "레고 플레이존", "레고 브릭 조립 체험",
+                    "현장 구매 시 미니 피규어 증정",
+                    "popup", Category.SHOPPING
+            ),
+
+// 43) POPUP_10 → 스타워즈 팝업
+            new SeedData(
+                    "https://aja5jo-image.s3.ap-northeast-2.amazonaws.com/public/stores/2025-08-25/80ad80de-1988-447a-8f33-a12403900916.png",
+                    "스타워즈 존", "스타워즈 굿즈와 포토존",
+                    "스타워즈 스페셜 존", "라이트세이버 체험",
+                    "굿즈 구매 시 스타워즈 포스터 증정",
+                    "popup", Category.ENTERTAINMENT
+            ),
+
+// 44) POPUP_11 → 카카오프렌즈 팝업
+            new SeedData(
+                    "https://aja5jo-image.s3.ap-northeast-2.amazonaws.com/public/stores/2025-08-25/cda7ca7e-0b21-4788-b4ee-d0ac49e48d21.png",
+                    "카카오프렌즈 팝업", "라이언·어피치 한정판 굿즈",
+                    "라이언 팝업 스토어", "캐릭터 인형·문구·소품",
+                    "한정 굿즈 구매 시 캐릭터 키링 증정",
+                    "popup", Category.ETC
+            ),
+
+// 45) POPUP_12 → 아웃도어 팝업
+            new SeedData(
+                    "https://aja5jo-image.s3.ap-northeast-2.amazonaws.com/public/stores/2025-08-25/93e20075-b2f2-4987-b966-4a70310e92bb.png",
+                    "캠핑 기어 팝업", "아웃도어 브랜드 체험 공간",
+                    "캠핑 기어 팝업", "텐트·버너·체어 전시",
+                    "현장 구매 고객 캠핑컵 제공",
+                    "popup", Category.ETC
+            ),
+
+// 46) POPUP_13 → 아이폰 액세서리
+            new SeedData(
+                    "https://aja5jo-image.s3.ap-northeast-2.amazonaws.com/public/stores/2025-08-25/aa720a7c-0a2a-4f42-ad3c-56b078f9404b.png",
+                    "아이폰 액세서리 존", "최신 스마트폰 케이스 & 충전기",
+                    "아이폰 케이스 페어", "다양한 액세서리 시리즈",
+                    "케이스 2개 이상 구매 시 20% 할인",
+                    "popup", Category.SHOPPING
+            ),
+
+// 47) KPOP_4 → IVE 팝업
+            new SeedData(
+                    "https://aja5jo-image.s3.ap-northeast-2.amazonaws.com/public/stores/2025-08-25/e8da247f-c109-450d-b271-7fce82210a97.png",
+                    "IVE 팬 존", "아이브 굿즈와 포토카드 체험",
+                    "IVE 팝업 스토어", "앨범·포토카드·MD 전시",
+                    "현장 이벤트 참여 시 랜덤 폴라 증정",
+                    "popup", Category.K_POP
+            ),
+
+// 48) KPOP_5 → 세븐틴 팝업
+            new SeedData(
+                    "https://aja5jo-image.s3.ap-northeast-2.amazonaws.com/public/stores/2025-08-25/8a6af436-8a66-4d8e-b3ab-a44445b57286.png",
+                    "SEVENTEEN 굿즈 존", "세븐틴 앨범과 응원봉 전시",
+                    "SEVENTEEN 굿즈 페어", "응원봉 체험 & 이벤트",
+                    "특정 금액 이상 구매 시 미공개 포토카드 증정",
+                    "popup", Category.K_POP
             )
-    );
+
+            );
 
     // ─────────────────────────────
     // 실행
@@ -367,63 +501,57 @@ public class DataInitializer implements ApplicationRunner {
             );
         }
 
-        // 2) 상인 15명 + 가게 15개 (콘텐츠 생성 없음)
-        User[] merchants = new User[15];
-        Store[] stores = new Store[15];
+        // 2) 시드 1개당: 상인 1명 + 상점 1개 + (type에 따라 이벤트 or 팝업) 1개
+        for (int idx = 0; idx < SEED_DATA.size(); idx++) {
+            SeedData s = SEED_DATA.get(idx);
 
-        for (int i = 0; i < 15; i++) {
-            merchants[i] = userRepository.save(
+            // 상인 생성
+            User merchant = userRepository.save(
                     User.builder()
-                            .email("merchant" + i + "@test.com")
+                            .email("merchant" + idx + "@test.com")
                             .password(passwordEncoder.encode("123456"))
                             .role(Role.MERCHANT)
                             .build()
             );
 
-            SeedData seed = SEED_DATA.get(i); // 앞 15개로 가게 생성
+            // 주소는 번갈아가며
+            String address = (idx % 2 == 0)
+                    ? "서울 마포구 홍대입구로 " + (10 + idx) + "길"
+                    : "서울 서대문구 신촌로 "   + (20 + idx) + "길";
 
-            stores[i] = storeRepository.save(
+            // 상점 생성 (썸네일/이미지 = 시드 이미지)
+            Store store = storeRepository.save(
                     Store.builder()
-                            .owner(merchants[i])
-                            .name(seed.storeName)
-                            .intro(seed.storeIntro)
-                            .address((i % 2 == 0)
-                                    ? "서울 마포구 홍대입구로 " + (10 + i) + "길"
-                                    : "서울 서대문구 신촌로 "   + (20 + i) + "길")
+                            .owner(merchant)
+                            .name(s.storeName)
+                            .intro(s.storeIntro)
+                            .address(address)
                             .number("010-" + rand4() + "-" + rand4())
-                            .category(seed.category)
-                            .thumbnail(seed.imageUrl)
-                            .images(List.of(seed.imageUrl))
+                            .category(s.category)
+                            .thumbnail(s.imageUrl)
+                            .images(List.of(s.imageUrl))
                             .startTime(LocalTime.of(10, 0))
                             .endTime(LocalTime.of(22, 0))
                             .likeCount(rand(0, 300))
                             .build()
             );
 
-            if (i % 5 == 4) {
-                em.flush(); em.clear();
-            }
-        }
-
-        // 3) 나머지 19개(인덱스 15~33) → "type"에 따라 Popup/Event만 생성
-        for (int k = 15; k < SEED_DATA.size(); k++) {
-            SeedData c = SEED_DATA.get(k);
-            Store target = stores[k % stores.length]; // 라운드로빈으로 스토어 배정
-
+            // 공통 기간/시간
             LocalDate start = LocalDate.now().plusDays(rand(-3, 2));
             LocalDate end   = start.plusDays(rand(3, 10));
 
-            if ("popup".equalsIgnoreCase(c.type)) {
+            // type에 따라 이벤트 or 팝업 생성
+            if ("popup".equalsIgnoreCase(s.type)) {
                 popupRepository.save(
                         Popup.builder()
-                                .user(target.getOwner())
-                                .name(c.contentTitle)
-                                .intro(c.contentIntro)
-                                .description(c.contentDescription)
-                                .thumbnail(c.imageUrl)
-                                .images(List.of(c.imageUrl))
-                                .category(c.category)
-                                .address("서울 임시로 " + (300 + k) + "번지")
+                                .user(merchant)
+                                .name(s.contentTitle)
+                                .intro(s.contentIntro)
+                                .description(s.contentDescription)
+                                .thumbnail(s.imageUrl)
+                                .images(List.of(s.imageUrl))
+                                .category(s.category)
+                                .address(address + " 팝업홀 B" + (idx % 5 + 1))
                                 .startDate(start)
                                 .endDate(end)
                                 .startTime(LocalTime.of(12, 0))
@@ -434,12 +562,12 @@ public class DataInitializer implements ApplicationRunner {
             } else {
                 eventRepository.save(
                         Event.builder()
-                                .store(target)
-                                .name(c.contentTitle)
-                                .intro(c.contentIntro)
-                                .description(c.contentDescription)
-                                .thumbnail(c.imageUrl)
-                                .images(List.of(c.imageUrl))
+                                .store(store)
+                                .name(s.contentTitle)
+                                .intro(s.contentIntro)
+                                .description(s.contentDescription)
+                                .thumbnail(s.imageUrl)
+                                .images(List.of(s.imageUrl))
                                 .startDate(start)
                                 .endDate(end)
                                 .startTime(LocalTime.of(11, 0))
@@ -449,16 +577,19 @@ public class DataInitializer implements ApplicationRunner {
                 );
             }
 
-            if ((k - 15) % 7 == 6) {
-                em.flush(); em.clear();
+            if (idx % 25 == 24) {
+                em.flush();
+                em.clear();
             }
         }
-        // 데이터 초기화 후 임베딩 미리 로드
+
+        // 필요 시 임베딩 프리로드
         embeddingPreloadService.preloadData();
 
         em.flush();
         em.clear();
     }
+
 
     // ─────────────────────────────
     // 유틸
